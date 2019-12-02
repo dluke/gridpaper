@@ -2,7 +2,7 @@ extends Node2D
 
 class_name NoteGrid
 
-export var color = Color()
+export var color = Color(0,0,0)
 # offset relative to the viewport
 export var gridsize = Vector2(11,11)
 
@@ -39,7 +39,7 @@ class Tile:
 
 
 	func set_faded():
-		modulate = upref.background_lighter
+		pass
 
 class ForestTile:
 	extends Tile 
@@ -51,6 +51,7 @@ class ForestTile:
 		pass
 
 func _ready():
+	print ('color ', color)
 	#	 construct an array of arrays
 	for i in range(gridsize.x):
 		var col = []
@@ -59,7 +60,6 @@ func _ready():
 
 	# set the default offset so that the grid center is the center of the screen
 	var viewrect = get_viewport_rect()
-	print ('viewrect', viewrect)
 	center_at( (viewrect.position + viewrect.end)/2 )
 
 	# set background_color
@@ -87,6 +87,8 @@ func get_grididx(pos):
 	return fidx.floor()
 	
 func _draw():
+	print("notegrid")
+	print('color ', color) 
 	assert(size > 0)
 	# var viewrect = get_viewport_rect()
 	# gridsize = viewrect.size / size

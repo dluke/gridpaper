@@ -69,6 +69,7 @@ func _ready():
 	var newtile = ForestTile.new(Vector2(1,1), self)
 	newtile.set_faded()
 	grid[1][1] = newtile
+	# adding tile to the nodetree means it will automatically be drawn
 	add_child(newtile)
 
 
@@ -87,6 +88,9 @@ func get_grididx(pos):
 	return fidx.floor()
 	
 func _draw():
+	print ('draw notegrid')
+	print ('color', color)
+	
 	assert(size > 0)
 	# var viewrect = get_viewport_rect()
 	# gridsize = viewrect.size / size
@@ -106,9 +110,6 @@ func _draw():
 	# var colors = [white, white, white, white]
 	# draw_polygon(poly, colors)
 
-	# determine which tiles are in view
-
-	# draw tiles
 
 
 func _in_view():
