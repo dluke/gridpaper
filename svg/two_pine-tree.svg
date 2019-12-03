@@ -28,7 +28,7 @@
   <defs
      id="defs12" />
   <sodipodi:namedview
-     pagecolor="#ffffff"
+     pagecolor="#4d4d4d"
      bordercolor="#666666"
      borderopacity="1"
      objecttolerance="10"
@@ -36,25 +36,26 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="2560"
-     inkscape:window-height="1385"
+     inkscape:window-width="2493"
+     inkscape:window-height="1412"
      id="namedview10"
      showgrid="false"
      inkscape:snap-global="false"
      inkscape:zoom="1.84375"
-     inkscape:cx="31.356901"
+     inkscape:cx="152.57724"
      inkscape:cy="221.49512"
-     inkscape:window-x="2560"
-     inkscape:window-y="27"
+     inkscape:window-x="67"
+     inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg8" />
+     inkscape:current-layer="svg8"
+     inkscape:pagecheckerboard="false" />
   <rect
-     style="fill:#003232;fill-opacity:1;stroke:none;stroke-width:3.19999981;stroke-miterlimit:4;stroke-dasharray:3.1999999, 3.1999999;stroke-dashoffset:0;stroke-opacity:0.30973451"
-     id="rect1651"
+     style="fill:#003232;fill-opacity:1;stroke:none;stroke-width:3.20000005;stroke-miterlimit:4;stroke-dasharray:3.20000003, 3.20000003;stroke-dashoffset:0;stroke-opacity:0.30973451"
+     id="rect2294"
      width="512"
-     height="511.99997"
+     height="512"
      x="0"
-     y="-5.8523561e-08" />
+     y="2.2241135e-05" />
   <g
      transform="matrix(0.71818679,0,0,0.71818679,2.9899556,102.43252)"
      class=""

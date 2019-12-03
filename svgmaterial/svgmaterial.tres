@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=2]
+
+[ext_resource path="res://svgmaterial/alfredmap.shader" type="Shader" id=1]
+[ext_resource path="res://svgmaterial/target_color.png" type="Texture" id=2]
+[ext_resource path="res://svgmaterial/new_color.png" type="Texture" id=3]
+
+[resource]
+shader = ExtResource( 1 )
+shader_param/base_palette = ExtResource( 2 )
+shader_param/new_palette = ExtResource( 3 )

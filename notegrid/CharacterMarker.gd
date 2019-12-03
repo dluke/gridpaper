@@ -28,6 +28,7 @@ func _draw():
 	draw_circle(pos, radius-width, notegrid.background_color)
 
 
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
 #	pass

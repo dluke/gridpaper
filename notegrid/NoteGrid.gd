@@ -2,12 +2,12 @@ extends Node2D
 
 class_name NoteGrid
 
-export var color = Color(0,0,0)
+export var gridcolor = Color(0,0,0)
 # offset relative to the viewport
 export var gridsize = Vector2(11,11)
 
 var background_color = Color('#4d4d4d')
-var background_lighter = background_color.lightened(0.2)
+var background_lighter = background_color.lightened(0.3)
 
 
 # grabable members
@@ -19,39 +19,7 @@ var grid = []
 var boardsize = size * gridsize
 
 
-class Tile:
-	extends Sprite 
-
-	var upref
-	var idx: Vector2
-	var passable: bool
-	# ...
-
-	func _init(i, tex, p, uref):
-		idx = i
-		texture = tex
-		passable = p 
-		upref = uref
-		#
-		position = upref.get_pos(idx) + Vector2(0,1)
-		centered = false
-		scale = (upref.square_size - Vector2(1,1) )/ texture.get_size()
-
-
-	func set_faded():
-		pass
-
-class ForestTile:
-	extends Tile 
-
-	# converts to large png
-	var forest_texture = load('res://svg/two_pine-tree.svg')
-  
-	func _init(i, upref).(i, forest_texture, false, upref):
-		pass
-
 func _ready():
-	print ('color ', color)
 	#	 construct an array of arrays
 	for i in range(gridsize.x):
 		var col = []
@@ -67,9 +35,13 @@ func _ready():
 
 	# add a forest tile
 	var newtile = ForestTile.new(Vector2(1,1), self)
-	newtile.set_faded()
+	newtile.faded = 1
 	grid[1][1] = newtile
-	add_child(newtile)
+	add_child(TileObject.new(newtile))
+
+	var origin = TileObject.new()
+	origin.visited = 1
+	grid[0][0] = origin
 
 
 func center_at(pos):
@@ -87,17 +59,15 @@ func get_grididx(pos):
 	return fidx.floor()
 	
 func _draw():
-	print("notegrid")
-	print('color ', color) 
 	assert(size > 0)
 	# var viewrect = get_viewport_rect()
 	# gridsize = viewrect.size / size
 	
 	for i in range(gridsize.x+1):
-		draw_line(Vector2(i*size, 0), Vector2(i*size, gridsize.y*size), color, 1)
+		draw_line(Vector2(i*size, 0), Vector2(i*size, gridsize.y*size), gridcolor, 1)
 		
 	for i in range(gridsize.y+1):
-		draw_line( Vector2(0, i*size), Vector2(gridsize.x*size, i*size), color, 1)
+		draw_line( Vector2(0, i*size), Vector2(gridsize.x*size, i*size), gridcolor, 1)
 
 	# # center marker
 	# var white = Color(255,255,255)
@@ -108,22 +78,12 @@ func _draw():
 	# var colors = [white, white, white, white]
 	# draw_polygon(poly, colors)
 
-	# determine which tiles are in view
-
-	# draw tiles
-
-
-func _in_view():
-	pass
-	# viewport
-
 func _unhandled_input(event):
 	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
 		if event.pressed:
 			_grabbed = 1 
 		elif !event.pressed:
 			_grabbed = 0 
-
 
 	if event is InputEventMouseMotion and _grabbed == true:
 		position += event.relative
@@ -152,3 +112,85 @@ func _unhandled_input(event):
 
 func _process(delta):
 	pass
+
+
+# dep this for GridNode
+class PassNode:
+	extends Node2D
+
+	# use drawing functions
+	var size
+
+	# colors
+	var outer = Color('#d39090')
+	var inner = Color('#ffffff')
+
+	func _init(_size):
+		size = _size
+
+	func _draw():
+		pass
+		# ..
+		
+class TileObject:
+	extends Node2D
+
+	var tile
+	var visited = 0
+
+	func _init(_tile=null):
+		tile = _tile
+
+	func _ready():
+		# add the drawable object
+		if tile != null:
+			add_child(tile)
+
+class Tile:
+	extends Sprite 
+
+	var upref # type inferred here ?
+
+	var tilebkg: Color
+	var bkg
+	var idx: Vector2
+	var passable = false
+	var faded = 0
+
+	func _init(i, tex, uref):
+		idx = i
+		texture = tex
+		upref = uref
+		#
+		position = upref.get_pos(idx) + Vector2(0,1)
+		centered = false
+		scale = (upref.square_size - Vector2(1,1) )/ texture.get_size()
+		#
+		tilebkg = upref.background_color
+
+	func _ready():
+		bkg = ColorRect.new()
+		if faded:
+			fade()
+		else:
+			bkg.color = tilebkg
+		bkg.rect_size = texture.get_size()
+		bkg.show_behind_parent = true
+		add_child(bkg)
+
+	func fade():
+		# only makes sense if object is in scene
+		faded = 1
+		bkg.color = upref.background_color
+		self_modulate = upref.background_lighter
+
+class ForestTile:
+	extends Tile 
+
+	# converts to large raster texture
+	var forest_texture = load('res://svg/two_pine-tree_nobkg.svg')
+  
+	func _init(i, upref).(i, forest_texture, upref):
+		passable = false
+		tilebkg = Color(0, 0.196078, 0.196078)
+

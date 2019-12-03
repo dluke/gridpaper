@@ -1,0 +1,25 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://addons/dialog_graph/DialogManager.gd" type="Script" id=1]
+[ext_resource path="res://addons/dialog_graph/icon.png" type="Texture" id=2]
+[ext_resource path="res://addons/dialog_graph/ConversationGraphNode.tscn" type="PackedScene" id=3]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="DialogManager" type="Node" parent="."]
+script = ExtResource( 1 )
+__meta__ = {
+"_editor_icon": ExtResource( 2 )
+}
+
+[node name="GraphNode" type="GraphNode" parent="DialogManager"]
+margin_left = 12.0753
+margin_top = 4.52825
+margin_right = 44.0753
+margin_bottom = 33.5283
+
+[node name="ConversationGraphNode" parent="DialogManager" instance=ExtResource( 3 )]
+margin_left = 10.5659
+margin_top = 47.5467
+margin_right = 248.566
+margin_bottom = 186.547
