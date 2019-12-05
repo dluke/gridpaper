@@ -1,10 +1,9 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://font/roboto.tres" type="DynamicFont" id=1]
-[ext_resource path="res://GUI/GridNode.gd" type="Script" id=2]
+[ext_resource path="res://GUI/GridNode.tscn" type="PackedScene" id=2]
 [ext_resource path="res://GUI/icons/node_circle.svg" type="Texture" id=3]
 [ext_resource path="res://GUI/icons/node_arrow.svg" type="Texture" id=4]
-[ext_resource path="res://testing/TestSpriteRect.gd" type="Script" id=5]
 
 [node name="Node2D" type="Node2D"]
 __meta__ = {
@@ -19,10 +18,7 @@ margin_bottom = 83.0
 custom_fonts/normal_font = ExtResource( 1 )
 text = "Scene for testing gui nodes."
 
-[node name="GridNode" type="Control" parent="."]
-margin_right = 40.0
-margin_bottom = 40.0
-script = ExtResource( 2 )
+[node name="GridNode" parent="." instance=ExtResource( 2 )]
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 visible = false
@@ -47,7 +43,3 @@ margin_bottom = 40.0
 margin_right = 40.0
 margin_bottom = 40.0
 texture = ExtResource( 4 )
-
-[node name="TestSpriteRect" type="Sprite" parent="."]
-visible = false
-script = ExtResource( 5 )

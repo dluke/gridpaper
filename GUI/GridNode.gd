@@ -1,151 +1,128 @@
-extends Control
+extends Node2D
 
 class_name GridNode
 
 """
-A graph node with 5 interactable components. The central node + possible 4 connections.
+ components:
+2 types of animated sprites, 5 sprites total
+5 distinct Areas which respond to input
 """
 
-# load texture svgimageulation routines
+
+# tmp
+var red = Color(1,0,0)
+var white = Color(1,1,1)
+
+# node colors
+export var base_color = Color('d4d4d4')
+var idle_border_color = Color('6f9dc5')
+var idle_border_width: int = 3
+
+# make this global
+enum Dir {RIGHT, UP, LEFT, DOWN}
+
+# load texture svgimage manipulation routines
 var svgimage =  preload('res://global/image.gd')
 
-var node_texture = preload('res://GUI/icons/node_circle.svg')
+# var node_texture = preload('res://GUI/icons/node_circle.svg')
 var arrow_texture = preload('res://GUI/icons/node_arrow.svg')
 
 # anticlockwise arrows 
 var card_arrows: Array = svgimage.texture_cardinal_directions(arrow_texture)
+# the distance from the center of the node to the center of the arrow
+var arrow_offset = 50 + 15.20
 
-# properties
-var gsize: Vector2 = node_texture.get_size()
-var arrowsize = arrow_texture.get_size()
+export var max_radius: int = 32
+export var idle_radius: int = 16
+export var grid_rect_size = Vector2(50,50)
+# 
+var idx: int
 
+# really need to distinguish hovered and focused?
+var hovered: bool = 0
+var focused: bool = 0
+var grabbed: bool = 0 
+export var grabbable: bool = 0
 
-# margins
-var small_margin: int = 0.05 * gsize.x
-var even_margin: int = (gsize.x - arrowsize.x)/2
-var big_margin: int = gsize.x - small_margin - arrowsize.x
+var edges: Array # int
 
-var m_block = [even_margin, big_margin, even_margin, small_margin]
+func _init():
+	pass
+	# tmp
 
-enum Dir {CENTER = 4, UP = 1, LEFT = 3, DOWN = 7, RIGHT = 5}
-
-# node references
-var center_button
-var grid
-var layoutmap = [Dir.UP, Dir.LEFT, Dir.DOWN, Dir.RIGHT]
-
-class NineGridContainer:
-	extends GridContainer
-	var layout: Array
-
-	func _init():
-		columns = 3
-		layout.resize(9)
-
-func _new_texture_button():
-	var tbutton = TextureButton.new()
-	# tbutton.stretch_mode = 0
-	return tbutton
-
-func _resize(size):
-	# starting with the grid size, set margins
-	gsize = (size/3).floor()
-	var asize_f = arrow_texture.get_size()/node_texture.get_size()
-	arrowsize = asize_f * gsize
-	#
-	small_margin = int(0.05 * gsize.x)
-	even_margin = (gsize.x - arrowsize.x)/2
-	big_margin = gsize.x - small_margin - arrowsize.x
-	m_block = [even_margin, big_margin, even_margin, small_margin]
-	# grid.queue_sort()
-
-	# we set rect_min_size and let TextureButton scale the texture 
-	center_button.rect_min_size = gsize
-	for i in range(4):
-		var ith_texture = card_arrows[i]
-		var marginbox = grid.layout[layoutmap[i]]
-		marginbox.get_child(0).rect_min_size = arrowsize
-		print('m_block', m_block)
-		margin_helper(marginbox, offset_array(m_block, -i))
-
-	# Called when the node enters the scene tree for the first time.
 func _ready():
 
-	# grid
-	grid = NineGridContainer.new()
-	add_child(grid)
+	# setup mouse collision
+	var c_circle =  $c_collider.shape_owner_get_shape(0,0)
+	c_circle.radius = max_radius
 
-	print('grid container size', grid.rect_size)
+	$limit_collider.shape_owner_get_shape(0,0).extents = (grid_rect_size/2).ceil()
 
-	# Margins
-	for i in range(9):
-		var box = MarginContainer.new()
-		grid.layout[i] = box
-		grid.add_child(box)
-	# Center 
-	center_button = _new_texture_button()
-	center_button.texture_normal = node_texture
-	grid.layout[Dir.CENTER].add_child(center_button)
+	# connect 
+	$c_collider.connect("mouse_entered", self, "_on_mouse_entered")
+	$c_collider.connect("mouse_exited", self, "_on_mouse_exited")
+	$c_collider.connect("clicked", self, "_on_clicked")
 
-	print('button 1 size', center_button.get_rect())
+	$limit_collider.connect("mouse_exited_dir", self, "_on_limit_exited")
 
-	# Arrows
-	for i in range(4):
-		var arrow_button = _new_texture_button()
-		var ith_texture = card_arrows[i]
-		arrow_button.texture_normal = ith_texture
-		var marginbox = grid.layout[layoutmap[i]]
-		marginbox.add_child(arrow_button)
+	_scale_with(idle_radius)
 
-	print('grid container size', grid.rect_size)
-	# later set expandable
-	center_button.expand = true
-	for i in range(4):
-		grid.layout[layoutmap[i]].get_child(0).expand = true
+func _scale_with(radius):
+	# scale sprite 
+	idle_border_width = max(int(idle_radius/4),3)
+	var c_scale = (2*radius)/$c_sprite.texture.get_size().x
+	$c_sprite.scale = Vector2(c_scale,c_scale)
 
-	var sz = 150
-	_resize(Vector2(sz,sz))
+func _snap_back():
+	$c_sprite.offset = Vector2(0,0)
 
+func grab():
+	grabbed = 1
+	$c_sprite.self_modulate = red
 
-static func offset_array(arr, offset):
-	offset = wrapi(offset, 0, arr.size())
-	if offset == 0:
-		return arr
-	var arr_ = Array() 
-	arr_.resize(arr.size())
-	for i in range(arr.size()):
-		arr_[i] = arr[wrapi(i+offset, 0, arr.size())]
-	return arr_
+func ungrab():
+	grabbed = 0
+	$c_sprite.self_modulate = white
 
-#
-static func margin_helper(container, block):
-	container.set("custom_constants/margin_right", block[0])
-	container.set("custom_constants/margin_top", block[1])
-	container.set("custom_constants/margin_left", block[2])
-	container.set("custom_constants/margin_bottom", block[3])
+func _draw():
+	draw_circle(Vector2(), idle_radius, idle_border_color)
+	draw_circle(Vector2(), idle_radius-idle_border_width, base_color)
 
-# try stretching
+func _unhandled_input(event):
+	# print ('@gridnode. event ', event.as_text())
+	if event is InputEventMouseMotion and grabbed == true:
+		$c_sprite.offset += event.relative
+	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
+		ungrab()
 
-class SpriteTextureButton:
-	extends MarginContainer
+func _on_limit_exited(dir):
+	ungrab()
+	_snap_back()
 
-	# In place of a raw texture like TextureRect
-	var sprite: Sprite
-	# for collision/input
-	var area: Area2D
-
-	func _ready():
-		area = Area2D.new()
+func _on_clicked(event):
+	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
+		if event.pressed:
+			if grabbable:
+				grab()
 
 
-	func set_sprite(sprite_):
-		sprite = sprite_
-		sprite.offset.x = get("custom_constants/margin_right")
-		sprite.offset.y = get("custom_constants/margin_top")
+func _set_focused():
+	focused = true
+	$c_sprite.visible = true
+	$c_sprite.z_index = 1
 
-	func set_size(value):
-		var inner_size = Vector2()
-		inner_size.x = rect_size.x - get("custom_constants/margin_right") - get("custom_constants/margin_left")
-		inner_size.y = rect_size.y - get("custom_constants/margin_top") - get("custom_constants/margin_bottom")
-		sprite.scale = inner_size/sprite.texture.get_size()
-		# area = sprite.
+func _set_unfocused():
+	focused = false
+	$c_sprite.visible = false
+		
+func _on_mouse_entered():
+	hovered = 1
+	_scale_with(max_radius)
+	_set_focused()
+
+func _on_mouse_exited():
+	hovered = 0
+	_set_unfocused()
+	# _scale_with(idle_radius)
+
+# spirte hovered animation

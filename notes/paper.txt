@@ -1,0 +1,3 @@
+Godot Issue Tracer (?)
+
+changing the class_name of a node and introducting a new unique node using the original node class_name doesn't update properly until class_name command is removed from the old node
