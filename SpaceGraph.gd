@@ -16,6 +16,9 @@ Should interact with NoteGrid (if that is child?)
 export var nodes: Array
 export var edges: Array
 
+# by selected node is the last to be added 
+var selected_node
+
 # variables for default spacing when adding new nodes outside of grid
 var e_x = Vector2(1,0)
 var e_y = Vector2(0,1)
@@ -40,6 +43,7 @@ func add_node(node):
 	node.idx = nodes.size()
 	nodes.append(node)
 	add_child(node)
+	selected_node = node
 	return node.idx
 
 func delete_edge(edge):
@@ -64,6 +68,11 @@ func cardinal_create_from_node(origin, dir=Direction['right'], spacing=default_g
 	add_edge(origin, new_node)
 	return new_node
 
+func _process(delta):
+	# add new nodes 
+	for action in ['ui_right', 'ui_left', 'ui_down', 'ui_up']:
+		if Input.is_action_just_pressed(action):
+			cardinal_create_from_node(selected_node, Direction[action.trim_prefix('ui_')])
 
 class Edge:
 	extends Node2D

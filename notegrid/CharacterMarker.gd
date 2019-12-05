@@ -1,32 +1,35 @@
-extends Node2D
+extends Sprite
 
 class_name CharacterMarker
 
-export var white = Color('#ffffff')
-var sizefactor = 0.55
+# export var white = Color('#ffffff')
+# var sizefactor = 0.55
+# onready var width = int(notegrid.size/15)
 
 onready var notegrid = get_parent()
-onready var width = int(notegrid.size/15)
 
-var grididx: Vector2
+
+var idx: Vector2
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	var idx = (notegrid.gridsize - Vector2(1,1))/2
-	set_grididx(idx.floor())
+	centered = false
+	texture = preload('res://svg/pencil.svg')
+	scale = Vector2(0.5,0.5)
+	set_idx(Vector2(0,0))
+
+func set_idx(idx):
+	var square = notegrid.get_rect(idx)
+	var corner = Vector2(0.8*square.size.x, 0.7*square.size.y)
+	position = square.position + corner 
+	position.y -= scale.y * texture.get_size().y
 
 
-func set_grididx(idx):
-	grididx = idx
-	update()
-
-func _draw():
-	var square = notegrid.get_rect(grididx)
-	var pos = (square.position + square.end)/2
-	var radius = (sizefactor * square.size.x)/2
-	draw_circle(pos, radius, white)
-	draw_circle(pos, radius-width, notegrid.background_color)
-
+# func _draw():
+# 	var pos = (square.position + square.end)/2
+# 	var radius = (sizefactor * square.size.x)/2
+# 	draw_circle(pos, radius, white)
+# 	draw_circle(pos, radius-width, notegrid.background_color)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="7.919596"
-     inkscape:cx="20.513252"
-     inkscape:cy="31.821442"
+     inkscape:zoom="5.6"
+     inkscape:cx="27.063627"
+     inkscape:cy="-21.868169"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -36,11 +36,13 @@
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     inkscape:window-width="2493"
-     inkscape:window-height="1412"
-     inkscape:window-x="67"
-     inkscape:window-y="0"
-     inkscape:window-maximized="1" />
+     inkscape:window-width="989"
+     inkscape:window-height="419"
+     inkscape:window-x="141"
+     inkscape:window-y="912"
+     inkscape:window-maximized="0"
+     showguides="true"
+     inkscape:guide-bbox="true" />
   <metadata
      id="metadata2378">
     <rdf:RDF>
@@ -63,6 +65,12 @@
        id="path1384-6-56-1-6"
        cx="71.092606"
        cy="248.30249"
+       r="5.5562501" />
+    <circle
+       style="fill:#d4d4d4;fill-opacity:1;stroke:#d57070;stroke-width:2.11666656;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path1384-6-56-1-6-6"
+       cx="87.41053"
+       cy="260.6188"
        r="5.5562501" />
   </g>
 </svg>

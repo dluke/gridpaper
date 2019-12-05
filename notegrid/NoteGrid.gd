@@ -2,45 +2,83 @@ extends Node2D
 
 class_name NoteGrid
 
+
+# put this in global scope ...
+var e_x = Vector2(1,0)
+var e_y = Vector2(0,1)
+var Direction = {'right':e_x, 'down':e_y, 'left':-e_x, 'up':-e_y}
+
+var One = Vector2(1,1)
+
+
+# generic behaviour
+var grabbed: bool = 0
+var focused: bool = 0
+
+# 
 export var gridcolor = Color(0,0,0)
-# offset relative to the viewport
-export var gridsize = Vector2(11,11)
-
-var background_color = Color('#4d4d4d')
-
-# grabable members
-var grabbed: bool
+export var extents = Vector2(1,1) setget set_extents
+var gridsize: Vector2 = 2*extents + Vector2(1,1)
 
 export var size = 80
 var square_size = Vector2(size, size)
 var grid = []
-var boardsize = size * gridsize
+var boardsize: Vector2 = gridsize * square_size
 
+#
+var marker_idx: Vector2 = extents
+
+var nn_basis = [Vector2(1,0), Vector2(1,1), Vector2(0,1), Vector2(-1,1), Vector2(-1,0), 
+			Vector2(-1,1), Vector2(0,-1), Vector2(1,-1)]
+
+func set_extents(extents_):
+	extents = extents_
+	gridsize = 2*extents + Vector2(1,1)
+	boardsize = size * gridsize
 
 func _ready():
+	grid = _new_grid(gridsize)
+
+func _new_grid(gridsize) -> Array:
 	#	 construct an array of arrays
+	var new_grid = []
 	for i in range(gridsize.x):
 		var col = []
 		col.resize(gridsize.y)
-		grid.append(col)
+		new_grid.append(col)
+	return new_grid
 
-	# set the default offset so that the grid center is the center of the screen
-	# var viewrect = get_viewport_rect()
-	# center_at( (viewrect.position + viewrect.end)/2 )
+func extend(size=5):
+	print ('extending grid')
+	var extension = Vector2(size, size)
+	var new_extents = extents + extension
+	var new_grid = _new_grid(2*new_extents + Vector2(1,1))
+	# copy tiles over
+	var transform = new_extents - extents
+	for i in range(gridsize.x):
+		for j in range(gridsize.y):
+			var t_idx = Vector2(i,j) + transform
+			# print('mapping ', i, ' ', j, ' onto ', t_idx)
+			new_grid[t_idx.x][t_idx.y] = grid[i][j]
+	grid = new_grid
+	marker_idx += extension
+	set_extents(new_extents)
+	if has_node('CursorMarker'):
+		$CursorMarker.idx += transform
+	update()
 
+func move_marker(move):
+	print ('move_marker')
+	marker_idx += move
+	print('marker', marker_idx, ' extents ', extents)
+	if !check_idx(marker_idx):
+		print('failed check')
+		# marker is now outside the grid, so make it bigger
+		extend()
 
-	# add a forest tile
-	var newtile = TileObject.new(Vector2(1,1), self)
-	var ftile = ForestTile.new(newtile)
-	ftile.faded = 1
-	newtile.tile = ftile
-	_insert_tile(newtile)
-
-	# var origin = TileObject.new(Vector2(0,0), self)
-	# origin.visited = 1
-	# _insert_tile(origin)
-	# # adds a child to TileObject so call after _insert_tile
-	# origin.add_gridnode()
+func set_focused():
+	# todo
+	focused = true
 
 func new_tile(tile_idx):
 	var tile_object = TileObject.new(tile_idx, self)
@@ -51,43 +89,58 @@ func get_boardsize():
 	return size * gridsize
 
 func _insert_tile(tileobj):
-	var idx = tileobj.idx
-	grid[idx.x][idx.y] = tileobj
+	var tile_idx = tileobj.idx
+	grid[tile_idx.x][tile_idx.y] = tileobj
 	add_child(tileobj)
 
-func center_at(pos):
-	position = pos - boardsize/2
+### grid behaviour
 
-func get_pos(grididx):
-	# get the position of the grididx
-	return size * grididx
+func check_idx(idx):
+	# check that the index is in the graph
+	return idx.x >= 0 && idx.y >= 0 && idx.x < gridsize.x && idx.y < gridsize.y
+	# return idx.x <= extents.x && idx.x >= -extents.y && idx.y <= extents.y && idx.y >= -extents.y
 
-func get_rect(grididx):
-	return Rect2(get_pos(grididx), square_size)
+func get_pos(idx):
+	# return (idx-extents+One)*square_size - square_size/2
+	return idx*square_size - boardsize/2
 
-func get_grididx(pos):
-	var fidx =  pos / size
-	return fidx.floor()
-	
+func get_idx(pos):
+	# return ((pos+square_size/2)/square_size).floor() + extents-One
+	return ((pos+boardsize/2)/square_size).floor()
+
+func get_rect(idx):
+	return Rect2(get_pos(idx), square_size)
+
+func get_neighbours(idx) -> Array:
+	var neighbours = []
+	for nv in nn_basis:
+		var candidate = idx + nv
+		if check_idx(candidate):
+			neighbours.push_back(candidate)
+	return neighbours
+
 func _draw():
 	assert(size > 0)
-	# var viewrect = get_viewport_rect()
-	# gridsize = viewrect.size / size
-	
-	for i in range(gridsize.x+1):
-		draw_line(Vector2(i*size, 0), Vector2(i*size, gridsize.y*size), gridcolor, 1)
-		
-	for i in range(gridsize.y+1):
-		draw_line( Vector2(0, i*size), Vector2(gridsize.x*size, i*size), gridcolor, 1)
+	# we might like to draw tile by tile 
 
-	# # center marker
-	# var white = Color(255,255,255)
-	# var centeridx = Vector2(int(gridsize.x/2), int(gridsize.y/2))
-	# var cpos = get_pos(centeridx)
-	# var poly = [cpos, Vector2(cpos.x,cpos.y+size), 
-	# 		Vector2(cpos.x+size,cpos.y+size), Vector2(cpos.x+size,cpos.y)]
-	# var colors = [white, white, white, white]
-	# draw_polygon(poly, colors)
+	# print('gridsize', gridsize)
+	# print('extents', extents)
+	print('pos', get_pos(Vector2(0,0)))
+	print('idx', get_idx(Vector2(0,0)))
+	print('center ', get_pos(Vector2(0,0)))
+	print('test ' , get_idx(get_pos(Vector2(0,0))) )
+	print('rect ' , get_rect(Vector2(0,0)) )
+
+	var y_edge = (extents.y + 0.5)*size
+	var x_edge = (extents.x + 0.5)*size
+	for i in range(gridsize.x+1):
+		var ix = (i-extents.x-0.5)*size
+		draw_line(Vector2(ix, -y_edge), Vector2(ix, y_edge), gridcolor, 1)
+		
+
+	for i in range(gridsize.y+1):
+		var iy = (i-extents.y-0.5)*size
+		draw_line(Vector2(-x_edge, iy), Vector2(x_edge, iy), gridcolor, 1)
 
 func _unhandled_input(event):
 	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
@@ -101,47 +154,15 @@ func _unhandled_input(event):
 		#
 		update()
 
-	var marker = get_node('CharacterMarker')	
-	if Input.is_action_just_pressed("ui_right"):
-		if (marker.grididx.x + 1 < gridsize.x):
-			marker.grididx.x += 1
-			marker.update()
-	if Input.is_action_just_pressed("ui_left"):
-		if (marker.grididx.x - 1 >= 0):
-			marker.grididx.x += -1
-			marker.update()
-	if Input.is_action_just_pressed("ui_down"):
-		if (marker.grididx.y + 1 < gridsize.y):
-			marker.grididx.y += 1
-			marker.update()
-	if Input.is_action_just_pressed("ui_up"):
-		if (marker.grididx.y -1 >= 0):
-			marker.grididx.y += -1
-			marker.update()
-
-
-
 func _process(delta):
-	pass
 
+	for action in ['ui_right', 'ui_left', 'ui_down', 'ui_up']:
+		if Input.is_action_just_pressed(action):
+			move_marker(Direction[action.trim_prefix('ui_')])
 
-# dep this for GridNode
-class PassNode:
-	extends Node2D
+	if has_node('CharacterMarker'):
+		$CharacterMarker.set_idx(marker_idx)
 
-	# use drawing functions
-	var size
-
-	# colors
-	var outer = Color('#d39090')
-	var inner = Color('#ffffff')
-
-	func _init(_size):
-		size = _size
-
-	func _draw():
-		pass
-		# ..
 
 class TileObject:
 	extends Node2D
@@ -178,7 +199,7 @@ class TileObject:
 		var center = grect.position + grect.size/2
 		var nodesize = (0.2 * grect.size).ceil()
 		gnode.idle_radius = int(nodesize.x/2)
-		gnode.max_radius = int(0.5 * grect.size.x/2)
+		gnode.max_radius = int(0.4 * grect.size.x/2)
 		gnode.position = center
 		return gnode
 
