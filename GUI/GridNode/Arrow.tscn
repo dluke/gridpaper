@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://GUI/icons/node_arrow.svg" type="Texture" id=1]
+[ext_resource path="res://GUI/GridNode/Arrow.gd" type="Script" id=2]
+[ext_resource path="res://GUI/Area2DButton.gd" type="Script" id=3]
+
+[node name="arrow_up" type="Sprite"]
+rotation = 1.5708
+texture = ExtResource( 1 )
+script = ExtResource( 2 )
+
+[node name="arrow_collider" type="Area2D" parent="."]
+position = Vector2( 0.236099, 46.3835 )
+script = ExtResource( 3 )
+
+[node name="Arrow" type="CollisionPolygon2D" parent="arrow_collider"]
+position = Vector2( 6.95431, -111.752 )
+polygon = PoolVector2Array( -25.2633, 84.4997, -6.94534, 45.1422, 10.5353, 84.081, -0.141514, 78.5333, -7.67805, 76.8585, -16.68, 79.3707 )

@@ -7,7 +7,6 @@ onready var graph = $SpaceGraph
 onready var notegrid = $NoteGrid
 
 # put this in global scope ...
-# also in SpaceGraph
 var e_x = Vector2(1,0)
 var e_y = Vector2(0,1)
 var Direction = {'right':e_x, 'down':e_y, 'left':-e_x, 'up':-e_y}
@@ -30,7 +29,6 @@ func _ready():
 	newtile.visited = true
 	var space_node = newtile.add_gridnode()
 	graph.add_node(space_node)
-	notegrid._insert_tile(newtile)
 
 	# # add a forest tile
 	# var ftile = ForestTile.new(newtile)
@@ -49,5 +47,27 @@ func _process(delta):
 	for action in ['ui_right', 'ui_left', 'ui_down', 'ui_up']:
 		if Input.is_action_just_pressed(action):
 			# 
-			var target_idx = notegrid.marker_idx + Direction[action.trim_prefix('ui_')]
+			var t_idx = notegrid.marker_idx + Direction[action.trim_prefix('ui_')]
+			if !notegrid.check_idx(t_idx):
+				notegrid.extend()
+				# the marker as moved
+				t_idx = notegrid.marker_idx + Direction[action.trim_prefix('ui_')]
+			# is there a tileobject here?
+			var oldtile = notegrid.get(t_idx)
+			var last_tile = notegrid.get(notegrid.marker_idx)
+			if oldtile == null:
+				var newtile = notegrid.new_tile(t_idx)
+				# set newtile background here
+				# ...
+				newtile.visited = true
+				var newnode = newtile.add_gridnode()
+				graph.add_node(newnode)
+				graph.add_edge(last_tile.node, newnode)
+			else:
+				# Already a tileojbect here
+				if oldtile.node != null:
+					# update connections
+					graph.add_edge(last_tile.node, oldtile.node)
+				else:
+					print("Warning: Found an old TileOjbect which has no node")
 

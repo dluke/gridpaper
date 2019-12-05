@@ -1,5 +1,7 @@
 extends Area2D
 
+class_name Area2DButton
+
 signal clicked
 
 # Called when the node enters the scene tree for the first time.

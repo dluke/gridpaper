@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://Main.gd" type="Script" id=1]
 [ext_resource path="res://TileSpace.gd" type="Script" id=2]
@@ -6,7 +6,6 @@
 [ext_resource path="res://notegrid/NoteGrid.gd" type="Script" id=4]
 [ext_resource path="res://notegrid/CursorMarker.gd" type="Script" id=5]
 [ext_resource path="res://notegrid/CharacterMarker.gd" type="Script" id=6]
-[ext_resource path="res://GUI/icons/node_arrow.svg" type="Texture" id=7]
 
 [node name="Main" type="Node2D"]
 script = ExtResource( 1 )
@@ -27,17 +26,3 @@ script = ExtResource( 5 )
 
 [node name="CharacterMarker" type="Sprite" parent="TileSpace/NoteGrid"]
 script = ExtResource( 6 )
-
-[node name="node_arrow" type="Sprite" parent="."]
-position = Vector2( -1701.03, 117.898 )
-texture = ExtResource( 7 )
-
-[node name="Sprite" type="Sprite" parent="."]
-position = Vector2( -1701.03, 117.898 )
-texture = ExtResource( 7 )
-
-[node name="Area2D" type="Area2D" parent="Sprite"]
-
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Sprite/Area2D"]
-position = Vector2( -7.64453, -6.59519 )
-polygon = PoolVector2Array( 1716.53, -36.4537, 1733.77, -74.2262, 1751.16, -36.6036, 1741.26, -41.55, 1732.87, -43.3487, 1725.08, -41.4001 )

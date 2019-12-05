@@ -27,6 +27,9 @@ var boardsize: Vector2 = gridsize * square_size
 
 #
 var marker_idx: Vector2 = extents
+var last_marker_idx = marker_idx
+
+var default_extension = Vector2(5,5)
 
 var nn_basis = [Vector2(1,0), Vector2(1,1), Vector2(0,1), Vector2(-1,1), Vector2(-1,0), 
 			Vector2(-1,1), Vector2(0,-1), Vector2(1,-1)]
@@ -39,6 +42,9 @@ func set_extents(extents_):
 func _ready():
 	grid = _new_grid(gridsize)
 
+func get(idx):
+	return grid[idx.x][idx.y]
+
 func _new_grid(gridsize) -> Array:
 	#	 construct an array of arrays
 	var new_grid = []
@@ -48,9 +54,9 @@ func _new_grid(gridsize) -> Array:
 		new_grid.append(col)
 	return new_grid
 
-func extend(size=5):
+func extend(size=default_extension):
 	print ('extending grid')
-	var extension = Vector2(size, size)
+	var extension = default_extension
 	var new_extents = extents + extension
 	var new_grid = _new_grid(2*new_extents + Vector2(1,1))
 	# copy tiles over
@@ -58,7 +64,6 @@ func extend(size=5):
 	for i in range(gridsize.x):
 		for j in range(gridsize.y):
 			var t_idx = Vector2(i,j) + transform
-			# print('mapping ', i, ' ', j, ' onto ', t_idx)
 			new_grid[t_idx.x][t_idx.y] = grid[i][j]
 	grid = new_grid
 	marker_idx += extension
@@ -68,11 +73,8 @@ func extend(size=5):
 	update()
 
 func move_marker(move):
-	print ('move_marker')
 	marker_idx += move
-	print('marker', marker_idx, ' extents ', extents)
 	if !check_idx(marker_idx):
-		print('failed check')
 		# marker is now outside the grid, so make it bigger
 		extend()
 
@@ -123,41 +125,22 @@ func _draw():
 	assert(size > 0)
 	# we might like to draw tile by tile 
 
-	# print('gridsize', gridsize)
-	# print('extents', extents)
-	print('pos', get_pos(Vector2(0,0)))
-	print('idx', get_idx(Vector2(0,0)))
-	print('center ', get_pos(Vector2(0,0)))
-	print('test ' , get_idx(get_pos(Vector2(0,0))) )
-	print('rect ' , get_rect(Vector2(0,0)) )
-
 	var y_edge = (extents.y + 0.5)*size
 	var x_edge = (extents.x + 0.5)*size
 	for i in range(gridsize.x+1):
 		var ix = (i-extents.x-0.5)*size
 		draw_line(Vector2(ix, -y_edge), Vector2(ix, y_edge), gridcolor, 1)
 		
-
 	for i in range(gridsize.y+1):
 		var iy = (i-extents.y-0.5)*size
 		draw_line(Vector2(-x_edge, iy), Vector2(x_edge, iy), gridcolor, 1)
 
-func _unhandled_input(event):
-	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
-		if event.pressed:
-			grabbed = 1 
-		elif !event.pressed:
-			grabbed = 0 
-
-	if event is InputEventMouseMotion and grabbed == true:
-		position += event.relative
-		#
-		update()
 
 func _process(delta):
 
 	for action in ['ui_right', 'ui_left', 'ui_down', 'ui_up']:
 		if Input.is_action_just_pressed(action):
+			last_marker_idx = marker_idx
 			move_marker(Direction[action.trim_prefix('ui_')])
 
 	if has_node('CharacterMarker'):
@@ -174,6 +157,7 @@ class TileObject:
 	var idx
 	var visited = 0
 	var upref
+	var node 
 
 	func _init(i, upref_, tile_=null):
 		idx = i
@@ -199,8 +183,9 @@ class TileObject:
 		var center = grect.position + grect.size/2
 		var nodesize = (0.2 * grect.size).ceil()
 		gnode.idle_radius = int(nodesize.x/2)
-		gnode.max_radius = int(0.4 * grect.size.x/2)
+		gnode.max_radius = int(0.25 * grect.size.x/2)
 		gnode.position = center
+		node = gnode
 		return gnode
 
 
