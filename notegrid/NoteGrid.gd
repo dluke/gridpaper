@@ -3,14 +3,6 @@ extends Node2D
 class_name NoteGrid
 
 
-# put this in global scope ...
-var e_x = Vector2(1,0)
-var e_y = Vector2(0,1)
-var Direction = {'right':e_x, 'down':e_y, 'left':-e_x, 'up':-e_y}
-
-var One = Vector2(1,1)
-
-
 # generic behaviour
 var grabbed: bool = 0
 var focused: bool = 0
@@ -29,7 +21,7 @@ var boardsize: Vector2 = gridsize * square_size
 var marker_idx: Vector2 = extents
 var last_marker_idx = marker_idx
 
-var default_extension = Vector2(5,5)
+var default_extension = Vector2(3,3)
 
 var nn_basis = [Vector2(1,0), Vector2(1,1), Vector2(0,1), Vector2(-1,1), Vector2(-1,0), 
 			Vector2(-1,1), Vector2(0,-1), Vector2(1,-1)]
@@ -56,8 +48,7 @@ func _new_grid(gridsize) -> Array:
 
 func extend(size=default_extension):
 	print ('extending grid')
-	var extension = default_extension
-	var new_extents = extents + extension
+	var new_extents = extents + size
 	var new_grid = _new_grid(2*new_extents + Vector2(1,1))
 	# copy tiles over
 	var transform = new_extents - extents
@@ -66,7 +57,7 @@ func extend(size=default_extension):
 			var t_idx = Vector2(i,j) + transform
 			new_grid[t_idx.x][t_idx.y] = grid[i][j]
 	grid = new_grid
-	marker_idx += extension
+	marker_idx += size
 	set_extents(new_extents)
 	if has_node('CursorMarker'):
 		$CursorMarker.idx += transform
@@ -141,7 +132,7 @@ func _process(delta):
 	for action in ['ui_right', 'ui_left', 'ui_down', 'ui_up']:
 		if Input.is_action_just_pressed(action):
 			last_marker_idx = marker_idx
-			move_marker(Direction[action.trim_prefix('ui_')])
+			move_marker(constants.Direction[action.trim_prefix('ui_')])
 
 	if has_node('CharacterMarker'):
 		$CharacterMarker.set_idx(marker_idx)

@@ -47,14 +47,14 @@ func _process(delta):
 	for action in ['ui_right', 'ui_left', 'ui_down', 'ui_up']:
 		if Input.is_action_just_pressed(action):
 			# 
-			var t_idx = notegrid.marker_idx + Direction[action.trim_prefix('ui_')]
-			if !notegrid.check_idx(t_idx):
-				notegrid.extend()
-				# the marker as moved
-				t_idx = notegrid.marker_idx + Direction[action.trim_prefix('ui_')]
-			# is there a tileobject here?
-			var oldtile = notegrid.get(t_idx)
+			var step = Direction[action.trim_prefix('ui_')]
 			var last_tile = notegrid.get(notegrid.marker_idx)
+			if !notegrid.check_idx(notegrid.marker_idx + step):
+				# !this moves the marker! 
+				notegrid.extend() 
+			# is there a tileobject here?
+			var t_idx = notegrid.marker_idx + step
+			var oldtile = notegrid.get(t_idx)
 			if oldtile == null:
 				var newtile = notegrid.new_tile(t_idx)
 				# set newtile background here

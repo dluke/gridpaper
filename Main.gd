@@ -1,6 +1,12 @@
 extends Node2D
 
 
+func _ready():
+	pass
+	# InputMap.add_action('toggle_inventory')
+	# i_keydown = InputEventKey.new()
+	# InputMap.add_action_event('toggle_inventory', )
+
 var grabbed: bool = 0
 
 func _unhandled_input(event):
