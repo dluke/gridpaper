@@ -2,6 +2,7 @@ extends Node2D
 
 class_name NoteGrid
 
+signal selected
 
 # generic behaviour
 var grabbed: bool = 0
@@ -127,6 +128,10 @@ func _draw():
 		draw_line(Vector2(-x_edge, iy), Vector2(x_edge, iy), gridcolor, 1)
 
 
+func _input_event(event):
+	if event is InputEventMouseButton and event.button == BUTTON_LEFT:
+		emit_signal('selected', get(get_idx(event.position)))
+
 func _process(delta):
 
 	for action in ['ui_right', 'ui_left', 'ui_down', 'ui_up']:
@@ -149,6 +154,7 @@ class TileObject:
 	var visited = 0
 	var upref
 	var node 
+	var description: String 
 
 	func _init(i, upref_, tile_=null):
 		idx = i

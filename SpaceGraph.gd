@@ -20,9 +20,6 @@ export var edges: Array
 var selected_node
 
 # variables for default spacing when adding new nodes outside of grid
-var e_x = Vector2(1,0)
-var e_y = Vector2(0,1)
-var Direction = {'right':e_x, 'down':e_y, 'left':-e_x, 'up':-e_y}
 var default_grid_spacing = 100
 
 # Called when the node enters the scene tree for the first time.
@@ -61,7 +58,7 @@ func delete_node(node):
 	remove_child(node)		
 	node.queue_free()
 
-func cardinal_create_from_node(origin, dir=Direction['right'], spacing=default_grid_spacing):
+func cardinal_create_from_node(origin, dir=constants.Direction['right'], spacing=default_grid_spacing):
 	var new_node = create_node() 
 	new_node.position = origin.position + default_grid_spacing * dir
 	var new_idx = add_node(new_node)
@@ -72,7 +69,7 @@ func _process(delta):
 	# add new nodes 
 	for action in ['ui_right', 'ui_left', 'ui_down', 'ui_up']:
 		if Input.is_action_just_pressed(action):
-			cardinal_create_from_node(selected_node, Direction[action.trim_prefix('ui_')])
+			cardinal_create_from_node(selected_node, constants.Direction[action.trim_prefix('ui_')])
 
 class Edge:
 	extends Node2D

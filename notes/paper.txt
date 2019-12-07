@@ -1,3 +1,17 @@
+Todo
+
+Editable tile descriptions and notes
+
+Spacegraph nodes connect / disconnect / translate 
+
+Draw edges for one way and unexplored regions
+
+Notegrid draw tile by tile
+
+Extra Notegrids and unbound Space nodes connecting them
+
+Inventory implement additional behaviour. focus_exited? 
+
 Notes
 
 for small (i.e. 16x16 pixels) icons. Should try to obtain pixel perfect icon.
@@ -12,3 +26,18 @@ changing the class_name of a node and introducting a new unique node using the o
 
 Some hard to pin down issues with setting properties in the Editor 
 with resaving/renaming resources 
+
+LineEdit text capture
+
+
+
+Projects
+
+Minimal tree based todo list with history. Some overlap with Heimer but with 
+more rigid (cleaner) layout and controls 
+and a way to hide information in nodes
+and a history to keep track of what has been done
+and connections to subtrees.
+
+
+

@@ -1,6 +1,6 @@
 [gd_resource type="Theme" load_steps=3 format=2]
 
-[sub_resource type="StyleBoxEmpty" id=3]
+[sub_resource type="StyleBoxEmpty" id=1]
 
 [sub_resource type="StyleBoxEmpty" id=2]
 
@@ -14,6 +14,6 @@ LineEdit/colors/selection_color = Color( 0.490196, 0.490196, 0.490196, 1 )
 LineEdit/constants/minimum_spaces = 0
 LineEdit/fonts/font = null
 LineEdit/icons/clear = null
-LineEdit/styles/focus = SubResource( 3 )
+LineEdit/styles/focus = SubResource( 1 )
 LineEdit/styles/normal = SubResource( 2 )
 LineEdit/styles/read_only = null

@@ -37,10 +37,10 @@ func _ready():
 
 func center_view():
 	position = get_viewport_rect().size/2
-	# var viewrect = get_viewport_rect()
-	# var cpt = (viewrect.position + viewrect.end)/2
-	# position = cpt 
-	# var grid_cpt = notegrid.get_boardsize()/2
+
+func _on_selected(tile):
+	# display
+	pass
 
 func _process(delta):
 

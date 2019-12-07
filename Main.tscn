@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://Main.gd" type="Script" id=1]
 [ext_resource path="res://TileSpace.gd" type="Script" id=2]
@@ -6,6 +6,9 @@
 [ext_resource path="res://notegrid/NoteGrid.gd" type="Script" id=4]
 [ext_resource path="res://notegrid/CursorMarker.gd" type="Script" id=5]
 [ext_resource path="res://notegrid/CharacterMarker.gd" type="Script" id=6]
+[ext_resource path="res://GUI/Inventory.tscn" type="PackedScene" id=7]
+[ext_resource path="res://GUI/Draggable.gd" type="Script" id=8]
+[ext_resource path="res://GUI/SimpleNote.tscn" type="PackedScene" id=9]
 
 [node name="Main" type="Node2D"]
 script = ExtResource( 1 )
@@ -26,3 +29,15 @@ script = ExtResource( 5 )
 
 [node name="CharacterMarker" type="Sprite" parent="TileSpace/NoteGrid"]
 script = ExtResource( 6 )
+
+[node name="GlyphHolder" type="Node2D" parent="TileSpace"]
+
+[node name="Inventory" parent="." instance=ExtResource( 7 )]
+
+[node name="Draggable" type="Control" parent="."]
+margin_top = 500.0
+margin_right = 40.0
+margin_bottom = 540.0
+script = ExtResource( 8 )
+
+[node name="SimpleNote" parent="Draggable" instance=ExtResource( 9 )]

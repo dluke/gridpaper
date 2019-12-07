@@ -6,17 +6,16 @@ var grabbed = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	rect_position = Vector2(500,200)
+	# rect_position = Vector2(500,200)
+	pass
 
 
 func _gui_input(event):
-	print('gui input click')
-
 	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
 		if event.pressed:
-			grabbed = 1 
+			grabbed = true
 		elif !event.pressed:
-			grabbed = 0 
+			grabbed = false 
 
 	if event is InputEventMouseMotion and grabbed == true:
 		rect_position += event.relative

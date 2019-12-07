@@ -8,6 +8,10 @@ class_name GridNode
 5 distinct Areas which respond to input
 """
 
+# todo should GridNode technically inherit Control?
+signal focus_entered
+signal focus_exited
+
 
 # make this global
 enum Dir {RIGHT, DOWN, LEFT, UP}
@@ -49,6 +53,7 @@ var idx: int
 var hovered: bool = 0
 var focused: bool = 0
 var grabbed: bool = 0 
+var selected: bool = 0
 export var grabbable: bool = 0
 
 var edges: Array # int
@@ -73,18 +78,19 @@ func _ready():
 	$limit_collider.connect("mouse_exited_dir", self, "_on_limit_exited")
 
 	# setup arrows
-	var direction = Direction.values()
-	arrows.resize(4)
-	for i in range(4):
-		var arrow = arrow_factory.instance()
-		 # needs scaling
-		arrow.position = arrow.node_offset * direction[i] 
-		arrow.rotation += i*PI/2
-		arrows[i] = arrow
-		arrow.visible = false
-		add_child(arrow)
-		# collision
-		arrow.connect("clicked", self, '_on_arrow_clicked', [arrow])
+	if false: # tmp disable arrows
+		var direction = Direction.values()
+		arrows.resize(4)
+		for i in range(4):
+			var arrow = arrow_factory.instance()
+			 # needs scaling
+			arrow.position = arrow.node_offset * direction[i] 
+			arrow.rotation += i*PI/2
+			arrows[i] = arrow
+			arrow.visible = false
+			add_child(arrow)
+			# collision
+			arrow.connect("clicked", self, '_on_arrow_clicked', [arrow])
 
 	# look at this
 	_scale_with(idle_radius)
