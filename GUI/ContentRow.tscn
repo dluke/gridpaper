@@ -2,7 +2,7 @@
 
 [ext_resource path="res://GUI/content_row.gd" type="Script" id=1]
 [ext_resource path="res://GUI/text_input_theme.tres" type="Theme" id=2]
-[ext_resource path="res://GUI/RowItem.gd" type="Script" id=3]
+[ext_resource path="res://GUI/SafeLineEdit.gd" type="Script" id=3]
 [ext_resource path="res://GUI/icons/tiny_cross.svg" type="Texture" id=4]
 
 [sub_resource type="StyleBoxEmpty" id=1]

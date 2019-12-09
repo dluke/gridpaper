@@ -11,6 +11,7 @@ func _ready():
 
 
 func _gui_input(event):
+	# print('drag input')
 	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
 		if event.pressed:
 			grabbed = true

@@ -1,12 +1,15 @@
 Todo
 
-Editable tile descriptions and notes
+Use light2d to illuminate notegrid
+Notegrid draw tile by tile
+
+Editable descriptions and notes
+
 
 Spacegraph nodes connect / disconnect / translate 
 
 Draw edges for one way and unexplored regions
 
-Notegrid draw tile by tile
 
 Extra Notegrids and unbound Space nodes connecting them
 
@@ -22,12 +25,18 @@ What if I learn GPU programming and use it to help out the group.
 
 Godot Issue Tracer (?)
 
-changing the class_name of a node and introducting a new unique node using the original node class_name doesn't update properly until class_name command is removed from the old node
+
+
+changing the class_name of a node and introducting a new unique node using the original node class_name doesn't update properly until class_name command is removed from the old node. The Type: X mouse over hint on nodes in the 
+SceneTree does not give the actual type but (parent?) (Godot Engine type?)
 
 Some hard to pin down issues with setting properties in the Editor 
 with resaving/renaming resources 
 
-LineEdit text capture
+
+Godot "file open" Editor for selecting script for node does not allow searching
+and does not allow "open" (finish) even after typing a valid filename (must 
+select with mouse) 
 
 
 

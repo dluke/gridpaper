@@ -1,19 +1,17 @@
-extends Node2D
+extends Control
 
 class_name GridNode
 
 """
  components:
-2 types of animated sprites, 5 sprites total
-5 distinct Areas which respond to input
+5 distinct Areas which respond to input: node, right, down, left, up
 """
 
-# todo should GridNode technically inherit Control?
-signal focus_entered
-signal focus_exited
+# release is opposite of grab
+signal node_release
+# the opposite of 'select' is 'unselect'
+signal node_select
 
-
-# make this global
 enum Dir {RIGHT, DOWN, LEFT, UP}
 
 # put this in global scope ...
@@ -33,9 +31,6 @@ export var base_color = Color('d4d4d4')
 var idle_border_color = Color('6f9dc5')
 var idle_border_width: int = 3
 
-# load texture svgimage manipulation routines
-var svgimage =  preload('res://global/image.gd')
-
 # var node_texture = preload('res://GUI/icons/node_circle.svg')
 var arrow_texture = preload('res://GUI/icons/node_arrow.svg')
 
@@ -46,33 +41,49 @@ export var max_radius: int = 32
 export var idle_radius: int = 16
 export var grid_rect_size = Vector2(50,50)
 # 
+# unique gridnode index 
 var idx: int
+# index in the grid
+var ixy: Vector2
 
 # generic behaviour
 # really need to distinguish hovered and focused?
 var hovered: bool = 0
-var focused: bool = 0
 var grabbed: bool = 0 
-var selected: bool = 0
-export var grabbable: bool = 0
+var moved: Vector2
+const moved_threshold_squared: int = 25
+var selected: bool = 0  # multiple nodes can be selected
+export var grabbable: bool = 1
 
-var edges: Array # int
+# mimick area2d 
+var position: Vector2 setget set_position, get_position
+
+var edges: Array # index
 
 func _init():
 	pass
-	# tmp
+
+func set_position(position):
+	rect_position = position
+
+func get_position():
+	return rect_position
 
 func _ready():
 
-
 	# setup mouse collision
-	var c_circle =  $c_collider.shape_owner_get_shape(0,0)
-	c_circle.radius = max_radius
+	var input_box_size = Vector2(idle_radius, idle_radius)
+	$InputControl.rect_min_size = input_box_size
+	$InputControl.rect_position = -input_box_size/2
+	# var c_circle =  $c_collider.shape_owner_get_shape(0,0)
+	# c_circle.radius = max_radius
+
 
 	# connect 
-	$c_collider.connect("mouse_entered", self, "_on_mouse_entered")
-	$c_collider.connect("mouse_exited", self, "_on_mouse_exited")
-	$c_collider.connect("clicked", self, "_on_clicked")
+	$InputControl.connect("mouse_entered", self, "_on_mouse_entered")
+	$InputControl.connect("mouse_exited", self, "_on_mouse_exited")
+	$InputControl.connect("clicked", self, "_on_clicked")
+	# $c_collider.connect("input_event", self, "_on_catch_input")
 
 	$limit_collider.shape_owner_get_shape(0,0).extents = (grid_rect_size/2).ceil()
 	$limit_collider.connect("mouse_exited_dir", self, "_on_limit_exited")
@@ -92,68 +103,78 @@ func _ready():
 			# collision
 			arrow.connect("clicked", self, '_on_arrow_clicked', [arrow])
 
-	# look at this
 	_scale_with(idle_radius)
 
-func _on_arrow_clicked(event, arrow):
-	print('clicked arrow at ', arrow.position)
-
-func _scale_with(radius):
-	# scale sprite 
-	idle_border_width = max(int(idle_radius/4),3)
-	var c_scale = (2*radius)/$c_sprite.texture.get_size().x
-	$c_sprite.scale = Vector2(c_scale,c_scale)
-	# all sprites should scale together
-	var direction = Direction.values()
-	for i in range(4):
-		var arrow = arrows[i]
-		arrow.scale = $c_sprite.scale
-		arrow.position = arrow.scale * arrow.node_offset * direction[i]
-
-func _draw():
-	if !focused:
-		draw_circle(Vector2(), idle_radius, idle_border_color)
-		draw_circle(Vector2(), idle_radius-idle_border_width, base_color)
-
-func _unhandled_input(event):
-	# print ('@gridnode. event ', event.as_text())
+func _input(event):
 	if event is InputEventMouseMotion and grabbed == true:
-		$c_sprite.offset += event.relative
-	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
-		ungrab()
-
-func _snap_back():
-	$c_sprite.offset = Vector2(0,0)
-
-func grab():
-	grabbed = 1
-	$c_sprite.self_modulate = red
-
-func ungrab():
-	grabbed = 0
-	$c_sprite.self_modulate = white
-
-func _on_limit_exited(dir):
-	ungrab()
-	_snap_back()
-
+		rect_position += event.relative
+		moved += event.relative
 
 func _on_clicked(event):
 	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
 		if event.pressed:
 			if grabbable:
 				grab()
+		elif !event.pressed:
+			if moved.length_squared() < moved_threshold_squared:
+				toggle_select()
+			ungrab()
+
+func _on_arrow_clicked(event, arrow):
+	print('clicked arrow at ', arrow.position)
+
+func _scale_with(radius):
+	idle_border_width = max(int(radius/4),3)
+	
+func _draw():
+	# border_color = idle_border_color
+	if hovered:
+		draw_circle(Vector2(), idle_radius, colors.hovered_border_color)
+		draw_circle(Vector2(), idle_radius-idle_border_width, base_color)
+	else:
+		draw_circle(Vector2(), idle_radius, idle_border_color)
+		draw_circle(Vector2(), idle_radius-idle_border_width, base_color)
+	if selected:
+		draw_circle_custom(idle_radius + 2, colors.white, 2)
 
 
-func _set_focused():
-	focused = true
+# func snap_back():
+# 	position = get_position(get_idx(ixy))
+
+func grab():
+	grabbed = 1
+
+func ungrab():
+	grabbed = 0
+	moved = Vector2(0,0)
+	# snap_back()
+	emit_signal('node_release', self)
+
+
+func toggle_select():
+	if selected:
+		unselect()
+	else:
+		select()
+
+func select():
+	selected = true
+	emit_signal('node_select', self)
+	update()
+
+func unselect():
+	selected = false
+	update()
+
+func _set_hovered():
+	pass
 	$c_sprite.visible = true
 	$c_sprite.z_index = 1
 	for arrow in arrows:
 		arrow.visible = true
 
-func _set_unfocused():
-	focused = false
+func _set_unhovered():
+	pass
 	$c_sprite.visible = false
 	for arrow in arrows:
 		arrow.visible = false
@@ -161,11 +182,36 @@ func _set_unfocused():
 func _on_mouse_entered():
 	hovered = 1
 	_scale_with(max_radius)
-	_set_focused()
+	# _set_hovered()
+	update()
 
 func _on_mouse_exited():
 	hovered = 0
-	_set_unfocused()
+	update()
+	# _set_unhovered()
 	# _scale_with(idle_radius)
 
 # sprite hovered animation ...
+
+
+### 
+
+func draw_circle_custom(radius, color, width, maxerror = 0.25):
+
+    if radius <= 0.0:
+        return
+
+    var maxpoints = 1024 - 1 # I think this is renderer limit
+
+    var numpoints = ceil(PI / acos(1.0 - maxerror / radius))
+    numpoints = clamp(numpoints, 3, maxpoints)
+
+    var points = PoolVector2Array([])
+
+    for i in numpoints:
+        var phi = i * PI * 2.0 / numpoints
+        var v = Vector2(sin(phi), cos(phi))
+        points.push_back(v * radius)
+    points.push_back(points[0])
+
+    draw_polyline(points, color, width)

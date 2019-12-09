@@ -14,7 +14,7 @@
    viewBox="0 0 13.229166 13.229166"
    version="1.1"
    id="svg2381"
-   inkscape:version="0.92.4 (f8dce91, 2019-08-02)"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
    sodipodi:docname="node_circle.svg">
   <defs
      id="defs2375" />
@@ -36,10 +36,10 @@
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     inkscape:window-width="989"
+     inkscape:window-width="992"
      inkscape:window-height="419"
-     inkscape:window-x="141"
-     inkscape:window-y="912"
+     inkscape:window-x="3466"
+     inkscape:window-y="54"
      inkscape:window-maximized="0"
      showguides="true"
      inkscape:guide-bbox="true" />
@@ -65,12 +65,6 @@
        id="path1384-6-56-1-6"
        cx="71.092606"
        cy="248.30249"
-       r="5.5562501" />
-    <circle
-       style="fill:#d4d4d4;fill-opacity:1;stroke:#d57070;stroke-width:2.11666656;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       id="path1384-6-56-1-6-6"
-       cx="87.41053"
-       cy="260.6188"
        r="5.5562501" />
   </g>
 </svg>

@@ -20,12 +20,15 @@ var boardsize: Vector2 = gridsize * square_size
 
 #
 var marker_idx: Vector2 = extents
-var last_marker_idx = marker_idx
+var last_marker_idx: Vector2
 
-var default_extension = Vector2(3,3)
 
 var nn_basis = [Vector2(1,0), Vector2(1,1), Vector2(0,1), Vector2(-1,1), Vector2(-1,0), 
 			Vector2(-1,1), Vector2(0,-1), Vector2(1,-1)]
+
+
+# dep
+var default_extension = Vector2(3,3)
 
 func set_extents(extents_):
 	extents = extents_
@@ -33,6 +36,9 @@ func set_extents(extents_):
 	boardsize = size * gridsize
 
 func _ready():
+	boardsize = gridsize * square_size
+	marker_idx = extents
+	last_marker_idx = marker_idx
 	grid = _new_grid(gridsize)
 
 func get(idx):
@@ -66,9 +72,9 @@ func extend(size=default_extension):
 
 func move_marker(move):
 	marker_idx += move
-	if !check_idx(marker_idx):
-		# marker is now outside the grid, so make it bigger
-		extend()
+	assert(check_idx(marker_idx))
+	# if !check_idx(marker_idx):
+		# extend()
 
 func set_focused():
 	# todo
@@ -92,14 +98,11 @@ func _insert_tile(tileobj):
 func check_idx(idx):
 	# check that the index is in the graph
 	return idx.x >= 0 && idx.y >= 0 && idx.x < gridsize.x && idx.y < gridsize.y
-	# return idx.x <= extents.x && idx.x >= -extents.y && idx.y <= extents.y && idx.y >= -extents.y
 
-func get_pos(idx):
-	# return (idx-extents+One)*square_size - square_size/2
+func get_pos(idx) -> Vector2:
 	return idx*square_size - boardsize/2
 
-func get_idx(pos):
-	# return ((pos+square_size/2)/square_size).floor() + extents-One
+func get_idx(pos) -> Vector2:
 	return ((pos+boardsize/2)/square_size).floor()
 
 func get_rect(idx):
@@ -116,7 +119,6 @@ func get_neighbours(idx) -> Array:
 func _draw():
 	assert(size > 0)
 	# we might like to draw tile by tile 
-
 	var y_edge = (extents.y + 0.5)*size
 	var x_edge = (extents.x + 0.5)*size
 	for i in range(gridsize.x+1):
@@ -147,7 +149,7 @@ class TileObject:
 	extends Node2D
 
 	# TileObjects may create instances of GridNode
-	var gridnode = preload('res://GUI/GridNode.tscn')
+	var gridnode_factory = preload('res://GUI/GridNode.tscn')
 
 	var tile
 	var idx
@@ -175,13 +177,13 @@ class TileObject:
 
 	func add_gridnode():
 		# put the node inside a panel box and center it 
-		var gnode = gridnode.instance()
+		var gnode = gridnode_factory.instance()
 		var grect = upref.get_rect(idx)
-		var center = grect.position + grect.size/2
+		gnode.position = grect.position + grect.size/2
 		var nodesize = (0.2 * grect.size).ceil()
 		gnode.idle_radius = int(nodesize.x/2)
 		gnode.max_radius = int(0.25 * grect.size.x/2)
-		gnode.position = center
+		gnode.ixy = idx
 		node = gnode
 		return gnode
 

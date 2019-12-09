@@ -5,7 +5,7 @@ var gridnode = preload('res://GUI/GridNode.tscn')
 class_name SpaceGraph
 
 """
-A Graph and embedding in 2d space. 
+A Graph and embedding in 2d grid. 
 
 Should interact with NoteGrid (if that is child?)
 
@@ -81,8 +81,8 @@ class Edge:
 	var from: GridNode
 	var to 
 
-	var edge_width = 20
-	var edge_width_f = 0.5
+	var edge_width: float
+	var edge_width_f = 0.2
 
 	func _init(from_, to_):
 		from = from_
@@ -91,5 +91,6 @@ class Edge:
 		edge_width = edge_width_f * from.idle_radius
 
 	func _draw():
+		print("draw edge")
 		draw_line(from.position, to.position, edge_base_color, edge_width)
 
