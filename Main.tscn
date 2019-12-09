@@ -50,6 +50,7 @@ scale = Vector2( 1.0009, 0.91213 )
 texture = ExtResource( 8 )
 
 [node name="Inventory" parent="." instance=ExtResource( 9 )]
+visible = false
 margin_left = 431.798
 margin_top = 57.8937
 margin_right = 431.798

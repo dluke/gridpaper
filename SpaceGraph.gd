@@ -91,6 +91,5 @@ class Edge:
 		edge_width = edge_width_f * from.idle_radius
 
 	func _draw():
-		print("draw edge")
 		draw_line(from.position, to.position, edge_base_color, edge_width)
 

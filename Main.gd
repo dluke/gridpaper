@@ -6,7 +6,6 @@ onready var note = find_node("SimpleNote")
 
 func _ready():
 	$Inventory.rect_position = Vector2(50, 200)
-
 	$TileSpace.connect('new_open_tile', self, '_on_new_open_tile')
 
 	# initialise SimpleNote
@@ -16,7 +15,8 @@ func _ready():
 
 	
 func node_label_format(node):
-	return ("(%d, %d)" % [node.ixy.x, node.ixy.y])
+	var coord = node.ixy - get_node('TileSpace').get_node('NoteGrid').extents
+	return ("(%d, %d)" % [coord.x, coord.y])
 
 func _on_new_open_tile(oldtile, tile):
 	oldtile.description = note.get_text()
