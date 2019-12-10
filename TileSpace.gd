@@ -6,7 +6,7 @@ var background_color = Color('#4d4d4d')
 
 # Main references	
 onready var graph = $SpaceGraph
-onready var notegrid = $NoteGrid
+onready var notegrid = find_node('NoteGrid')
 
 var open_tile # reference to the node whose description we are displaying
 
@@ -116,3 +116,5 @@ func _process(delta):
 
 func center_view():
 	position = get_viewport_rect().size/2
+	# need to re-center this object because it is on a separate canvas layer
+	notegrid.center_view()

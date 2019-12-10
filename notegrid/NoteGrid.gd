@@ -36,10 +36,31 @@ func set_extents(extents_):
 	boardsize = size * gridsize
 
 func _ready():
+
 	boardsize = gridsize * square_size
 	marker_idx = extents
 	last_marker_idx = marker_idx
 	grid = _new_grid(gridsize)
+
+	# need to re-center this object because it is on a separate canvas layer
+	# center_view()
+	
+	$CharacterMarker.set_idx(marker_idx)
+
+	# print(get_viewport_rect())
+	# print(position)
+	# print('boardsize ', boardsize)
+	# print('extents ', extents)
+	# print(get_pos(Vector2(0,0)))
+	# print(get_pos(Vector2(0,1)))
+	# print(get_idx(get_viewport_rect().size/2))
+	# print(get_idx(get_pos(Vector2(0,0))))
+	# print(marker_idx)
+
+
+
+func center_view():
+	position = get_viewport_rect().size/2
 
 func get(idx):
 	return grid[idx.x][idx.y]
@@ -73,8 +94,8 @@ func extend(size=default_extension):
 func move_marker(move):
 	marker_idx += move
 	assert(check_idx(marker_idx))
-	# if !check_idx(marker_idx):
-		# extend()
+	if has_node('CharacterMarker'):
+		$CharacterMarker.set_idx(marker_idx)
 
 func set_focused():
 	# todo
@@ -141,8 +162,6 @@ func _process(delta):
 			last_marker_idx = marker_idx
 			move_marker(constants.Direction[action.trim_prefix('ui_')])
 
-	if has_node('CharacterMarker'):
-		$CharacterMarker.set_idx(marker_idx)
 
 
 class TileObject:

@@ -16,7 +16,6 @@ func _ready():
 	centered = false
 	texture = preload('res://svg/pencil.svg')
 	scale = Vector2(0.5,0.5)
-	set_idx(Vector2(0,0))
 
 func set_idx(idx):
 	var square = notegrid.get_rect(idx)

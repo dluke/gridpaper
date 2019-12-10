@@ -15,7 +15,7 @@ func _ready():
 
 	
 func node_label_format(node):
-	var coord = node.ixy - get_node('TileSpace').get_node('NoteGrid').extents
+	var coord = node.ixy - get_node('TileSpace').notegrid.extents
 	return ("(%d, %d)" % [coord.x, coord.y])
 
 func _on_new_open_tile(oldtile, tile):
