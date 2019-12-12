@@ -12,16 +12,12 @@ signal node_release
 # the opposite of 'select' is 'unselect'
 signal node_select
 
-enum Dir {RIGHT, DOWN, LEFT, UP}
+enum Dir {RIGHT, DOWN, LEFT, UP, DOWN_LAYER, UP_LAYER}
 
 # put this in global scope ...
 var e_x = Vector2(1,0)
 var e_y = Vector2(0,1)
 var Direction = {'right':e_x, 'down':e_y, 'left':-e_x, 'up':-e_y}
-
-# tmp
-var red = Color(1,0,0)
-var white = Color(1,1,1)
 
 var arrow_factory = preload('res://GUI/GridNode/Arrow.tscn')
 var arrows: Array = []
@@ -60,8 +56,10 @@ var position: Vector2 setget set_position, get_position
 
 var edges: Array # index
 
+enum EdgeDir {RIGHT, UP, LEFT, DOWN}
+
 func _init():
-	pass
+	edges.resize(6)
 
 func set_position(position):
 	rect_position = position

@@ -1,9 +1,10 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://GUI/GridNode.gd" type="Script" id=1]
 [ext_resource path="res://GUI/InputControl.gd" type="Script" id=2]
 [ext_resource path="res://GUI/GridNode/limit_collider.gd" type="Script" id=3]
 [ext_resource path="res://GUI/Area2DButton.gd" type="Script" id=4]
+[ext_resource path="res://light/white_circle.png" type="Texture" id=5]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 23.9112, 24.8831 )
@@ -37,3 +38,12 @@ script = ExtResource( 4 )
 
 [node name="Circle" type="CollisionShape2D" parent="c_collider"]
 shape = SubResource( 2 )
+
+[node name="Light2D" type="Light2D" parent="."]
+position = Vector2( 2.39655, -1.16638 )
+texture = ExtResource( 5 )
+texture_scale = 0.25
+mode = 1
+range_layer_min = -1
+range_layer_max = -1
+range_item_cull_mask = 2
