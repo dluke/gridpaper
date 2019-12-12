@@ -9,5 +9,5 @@ func _ready():
 	graph.add_node(node_1)
 
 	var node_2 = graph.cardinal_create_from_node(node_1)
-	graph.cardinal_create_from_node(node_2, graph.Direction['down'])
+	graph.cardinal_create_from_node(node_2, 1)
 	graph.cardinal_create_from_node(node_2)
