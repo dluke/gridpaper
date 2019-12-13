@@ -31,6 +31,8 @@ var _subgrid_edge = {}
 onready var sub_origin = gsize/2 * e_x
 onready var sub_x = Vector2(1,-1) * gsize/2
 onready var sub_y = Vector2(1,1) * gsize/2
+var sub_h = Vector2(1,1)
+var sub_v = Vector2(-1,1)
 
 onready var t_subgrid_xy = Transform2D(gsize/2 * Vector2(1,-1), gsize/2 * Vector2(1,1), Vector2(gsize/2,0))
 onready var t_subgrid_idx = Transform2D(1/gsize * Vector2(1,1), 1/gsize * Vector2(-1,1), Vector2(-0.5,-0.5))
@@ -90,7 +92,6 @@ func compute_polyline(edge, tilespace):
 
 	# l1 distance on the subgrid
 	var sub_distance = l1_norm(subidx_p - subidx_t)
-	# print('l1 distance ', sub_distance)
 	if sub_distance == 0:
 		# bookkeeping
 		grid_edge[subidx_p] = 1 # todo
@@ -98,17 +99,95 @@ func compute_polyline(edge, tilespace):
 	# 
 	var p_line = [p_from, p_from + node_box_size * Dir_basis[edge.direction_from]]
 	var r_line = [p_to, p_to + node_box_size * Dir_basis[edge.direction_to]]
-	# print(p_line)
-	# print(r_line)
 	if sub_distance <= 1:
 		# bookkeeping
 		grid_edge[subidx_t] = 1 # todo
 		return append_reversed(p_line, r_line)
 
-	# greedy algorithm
+	# sub_distance > 1
+	# pathing algorithm on subgrid
+	# var pathline = subidx_t - subidx_p
+	var path = _pathing(subidx_p, subidx_t)
+	print(path)
+
 
 	# bookkeeping
 	return append_reversed(p_line, r_line)
+
+# return the full path on the subgrid
+# todo test cases
+func _pathing(sub_p, sub_t):
+	var path = [sub_p]
+	var pathline = sub_t-sub_p
+	var d = l1_norm(pathline)
+	var remainder
+	# set up heuristics
+	var heuristic = []
+	if pathline.x != 0:
+		heuristic.append(sign(pathline.x)*e_x)
+	if pathline.y != 0:
+		heuristic.append(sign(pathline.y)*e_y)
+	var shortcut = []
+	var is_horizontal: bool
+	if heuristic.size() > 1:
+		shortcut = [heuristic[0]+heuristic[1]]
+		is_horizontal = sign(shortcut[0].x * shortcut[0].y) == 1
+
+	print('heuristics ', heuristic)
+	print('shortcut ', shortcut)
+	print('start stop ', sub_p, sub_t)
+	print('is_horizontal ', is_horizontal)
+	var maxiter = 10
+	var used_shortcut: bool
+	for i in range(maxiter):
+		if d < 1:
+			break
+		#	
+		used_shortcut = false
+		if !shortcut.empty() && pathline.x != 0 && pathline.y != 0:
+			var permit = false # permit shortcut
+			if is_horizontal:
+				permit = sgn_h(path[-1]) == 0
+			else:
+				permit = sgn_v(path[-1]) == 0
+			#	
+			print('permit shortcut ', permit)
+			if permit:
+				remainder = pathline - shortcut[0]
+				print ('remainder ', remainder)
+				if l1_norm(remainder) < d:
+					pathline = remainder
+					path.push_back(path[-1]+shortcut[0])
+					used_shortcut = true
+					_prune(heuristic, pathline)
+		if !used_shortcut:
+			pathline -= heuristic[0]
+			path.push_back(path[-1]+heuristic[0])
+			_prune(heuristic, pathline)
+			
+		d = l1_norm(pathline)
+		# print (path[-1])
+		print ('p ', path, pathline)
+
+	assert(path[-1] == sub_t)
+	return path
+
+static func _prune(heuristic, pathline):
+	if heuristic.size()>1:
+		if pathline.x == 0:
+			heuristic.remove(0)
+		elif pathline.y == 0:
+			heuristic.remove(1)
+
+func joined(a, b):
+	var norm = l1_norm(b-a)
+	if (norm <= 1):
+		return true
+	else:
+		if (b-a) == sub_v:
+			return sgn_v(a) == 0
+		elif (b-a) == sub_h:
+			return sgn_h(a) == 0
 
 
 func add_graph_node():
@@ -159,15 +238,15 @@ func _on_node_release(node):
 			# if there is a tile and it has a node
 				# pass
 	if !snapped:
-		# snap_back
 		snap_to(node, node.ixy)
 
 func snap_to(node, idx):
 	var prev_tile = notegrid.get(node.ixy)
-	if node.ixy == idx:
-		return 
 	var grect = notegrid.get_rect(idx)
 	node.position = grect.position + grect.size/2
+	if node.ixy == idx:
+		return # snap back
+	#
 	node.ixy = idx
 	if node == graph.selected_node:
 		# update marker position
@@ -234,6 +313,12 @@ func center_view():
 
 func l1_norm(v):
 	return abs(v.x) + abs(v.y)
+
+func sgn_h(pt):
+	return (int(pt.x + pt.y) + 1) % 2
+
+func sgn_v(pt):
+	return int(pt.x + pt.y) % 2
 
 func append_reversed(p_line, r_line):
 	for i in range(1, r_line.size()+1):

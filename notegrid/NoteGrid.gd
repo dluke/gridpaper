@@ -47,17 +47,6 @@ func _ready():
 	
 	$CharacterMarker.set_idx(marker_idx)
 
-	# print(get_viewport_rect())
-	# print(position)
-	# print('boardsize ', boardsize)
-	# print('extents ', extents)
-	# print(get_pos(Vector2(0,0)))
-	# print(get_pos(Vector2(0,1)))
-	# print(get_idx(get_viewport_rect().size/2))
-	# print(get_idx(get_pos(Vector2(0,0))))
-	# print(marker_idx)
-
-
 
 func center_view():
 	position = get_viewport_rect().size/2

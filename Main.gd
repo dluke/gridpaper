@@ -44,7 +44,8 @@ func _unhandled_input(event):
 
 	if event is InputEventMouseMotion and grabbed == true:
 		position += event.relative
-		find_node('GridLayer').offset += event.relative
+		find_node('NoteGrid').position += event.relative
+		# find_node('GridLayer').offset += event.relative
 		#
 		update()
 		get_tree().set_input_as_handled()
