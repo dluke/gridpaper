@@ -20,8 +20,9 @@ const e_x = Vector2(1,0)
 const e_y = Vector2(0,1)
 var Dir_basis = [e_x, e_y, -e_x, -e_y]
 
-export var nodes: Array
-export var edges: Array
+var nodes: Array = []
+var edges: Array = []
+
 
 # by selected node is the last to be added 
 var selected_node
@@ -29,9 +30,8 @@ var selected_node
 # variables for default spacing when adding new nodes outside of grid
 var default_grid_spacing = 100
 
-# Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
+	pass
 
 func add_edge(node_i, d_from, node_j, d_to):
 	var edge = Edge.new(node_i, d_from, node_j, d_to)

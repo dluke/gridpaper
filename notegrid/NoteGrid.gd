@@ -15,7 +15,7 @@ var gridsize: Vector2 = 2*extents + Vector2(1,1)
 
 export var size = 80
 var square_size = Vector2(size, size)
-var grid = []
+var grid = []  # 2d tile grid
 var boardsize: Vector2 = gridsize * square_size
 
 #
@@ -91,11 +91,11 @@ func extend(size=default_extension):
 		$CursorMarker.idx += transform
 	update()
 
-func move_marker(move):
-	marker_idx += move
-	assert(check_idx(marker_idx))
+func move_marker(target):
+	marker_idx = target
+	assert(check_idx(target))
 	if has_node('CharacterMarker'):
-		$CharacterMarker.set_idx(marker_idx)
+		$CharacterMarker.set_idx(target)
 
 func set_focused():
 	# todo
@@ -160,7 +160,7 @@ func _process(delta):
 	for action in ['ui_right', 'ui_left', 'ui_down', 'ui_up']:
 		if Input.is_action_just_pressed(action):
 			last_marker_idx = marker_idx
-			move_marker(constants.Direction[action.trim_prefix('ui_')])
+			move_marker(marker_idx + constants.Direction[action.trim_prefix('ui_')])
 
 
 

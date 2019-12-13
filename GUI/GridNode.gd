@@ -54,11 +54,14 @@ export var grabbable: bool = 1
 # mimick area2d 
 var position: Vector2 setget set_position, get_position
 
-var edges: Array # index
-
 enum EdgeDir {RIGHT, UP, LEFT, DOWN}
 
+var edges: Array
+
 func _init():
+
+	# new instance, new array	
+	edges = []
 	edges.resize(6)
 
 func set_position(position):

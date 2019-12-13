@@ -30,7 +30,6 @@ layer = -1
 light_mask = 2
 scale = Vector2( 1, 0.997557 )
 script = ExtResource( 4 )
-gridcolor = Color( 0.305882, 0.305882, 0.305882, 1 )
 extents = Vector2( 127, 127 )
 
 [node name="CursorMarker" type="Node2D" parent="TileSpace/GridLayer/NoteGrid"]

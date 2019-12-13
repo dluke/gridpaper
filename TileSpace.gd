@@ -60,6 +60,7 @@ func _ready():
 	# Take processing away from SpaceGraph so we can implement it here
 	graph.set_process(false)
 
+
 	# add a gridnode at the origin 
 	var origin_idx = notegrid.extents
 	var newtile = notegrid.new_tile(origin_idx)
@@ -70,6 +71,7 @@ func _ready():
 	#
 	open_tile = newtile
 
+
 	# # add a forest tile
 	# var ftile = ForestTile.new(newtile)
 	# ftile.faded = 1
@@ -77,7 +79,7 @@ func _ready():
 
 # algorithm 
 func compute_polyline(edge, tilespace): 
-	var nodes = tilespace.graph.nodes
+	# var nodes = tilespace.graph.nodes
 	var grid_edge = tilespace._grid_edge
 	var subgrid_edge = tilespace._subgrid_edge
 	var p_from = edge.from.position
@@ -88,7 +90,7 @@ func compute_polyline(edge, tilespace):
 
 	# l1 distance on the subgrid
 	var sub_distance = l1_norm(subidx_p - subidx_t)
-	print('l1 distance ', sub_distance)
+	# print('l1 distance ', sub_distance)
 	if sub_distance == 0:
 		# bookkeeping
 		grid_edge[subidx_p] = 1 # todo
@@ -96,8 +98,8 @@ func compute_polyline(edge, tilespace):
 	# 
 	var p_line = [p_from, p_from + node_box_size * Dir_basis[edge.direction_from]]
 	var r_line = [p_to, p_to + node_box_size * Dir_basis[edge.direction_to]]
-	print(p_line)
-	print(r_line)
+	# print(p_line)
+	# print(r_line)
 	if sub_distance <= 1:
 		# bookkeeping
 		grid_edge[subidx_t] = 1 # todo
@@ -139,6 +141,7 @@ func add_node_to_tile(tile):
 
 func _on_node_release(node):
 	# snap to grid position else snap_back
+	print('graph edges ', graph.edges)
 	var ixy = notegrid.get_idx(node.position)
 	var snapped = false
 	if ixy != node.ixy:
@@ -161,17 +164,22 @@ func _on_node_release(node):
 		snap_to(node, node.ixy)
 
 func snap_to(node, idx):
-	var prev_node = notegrid.get(node.ixy)
-	prev_node.node = null
+	var prev_tile = notegrid.get(node.ixy)
+	prev_tile.node = null
 	var grect = notegrid.get_rect(idx)
 	node.position = grect.position + grect.size/2
 	node.ixy = idx
+	if node == graph.selected_node:
+		# update marker position
+		notegrid.move_marker(idx)
+	print('edges ', node.edges)
 	for edge_idx in node.edges:
 		if edge_idx != null:
 			var edge = graph.edges[edge_idx]
 			print("recompute polyline")
 			edge.p_line = compute_polyline(edge, self)
 			edge.update()
+	update()
 
 func _on_selected(tile):
 	# display
@@ -209,7 +217,8 @@ func _process(delta):
 					add_graph_edge(last_tile.node, dir, oldtile.node, Dir_opp[dir])
 					change_open_tile(last_tile, oldtile)
 				else:
-					print("Warning: Found an old TileOjbect which has no node")
+					var newnode = add_node_to_tile(oldtile)
+					add_graph_edge(last_tile.node, dir, newnode, Dir_opp[dir])
 
 func center_view():
 	position = get_viewport_rect().size/2
