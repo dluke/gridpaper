@@ -61,7 +61,6 @@ texture = ExtResource( 8 )
 margin_top = 500.0
 margin_right = 40.0
 margin_bottom = 540.0
-mouse_filter = 2
 script = ExtResource( 9 )
 
 [node name="SimpleNote" parent="CanvasLayer/Draggable" instance=ExtResource( 10 )]

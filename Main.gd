@@ -28,7 +28,6 @@ func _input(event):
 	# print('input ', event.as_text())
 
 func _unhandled_input(event):
-	print('unhandled ', event.as_text())
 	if Input.is_action_pressed("ui_cancel"):
 		get_tree().quit()
 
@@ -36,8 +35,7 @@ func _unhandled_input(event):
 		if event.pressed:
 
 			# todo, manage focus of note
-			print('release focus')
-			note.release_focus()
+			note.release()
 
 			grabbed = 1 
 		else:

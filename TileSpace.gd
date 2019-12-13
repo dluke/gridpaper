@@ -172,7 +172,6 @@ func snap_to(node, idx):
 	if node == graph.selected_node:
 		# update marker position
 		notegrid.move_marker(idx)
-		print('tile idx', prev_tile.idx, idx)
 		change_open_tile(prev_tile, notegrid.get(idx))
 
 	prev_tile.node = null
@@ -223,7 +222,7 @@ func _unhandled_input(event):
 				else:
 					var newnode = add_node_to_tile(oldtile)
 					add_graph_edge(last_tile.node, dir, newnode, Dir_opp[dir])
-		get_tree().set_input_as_handled()
+			get_tree().set_input_as_handled()
 
 func center_view():
 	position = get_viewport_rect().size/2

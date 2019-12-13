@@ -5,6 +5,12 @@ extends Control
 onready var Label = find_node('Label')
 onready var TextEdit = find_node('TextEdit')
 
+# func _ready():
+# 	connect('mouse_exited', self, 'release')
+
+func release():
+	TextEdit.release_focus()
+
 func get_text():
 	return TextEdit.text 
 
