@@ -5,7 +5,6 @@ extends Control
 onready var Label = find_node('Label')
 onready var TextEdit = find_node('TextEdit')
 
-
 func get_text():
 	return TextEdit.text 
 

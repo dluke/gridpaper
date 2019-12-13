@@ -76,10 +76,10 @@ func cardinal_create_from_node(origin, dir=Dir.RIGHT, spacing=default_grid_spaci
 
 	return new_node
 
-func _process(delta):
+func _unhandled_input(event):
 	# add new nodes 
 	for action in ['ui_right', 'ui_left', 'ui_down', 'ui_up']:
-		if Input.is_action_just_pressed(action):
+		if event.is_action(action) and event.pressed:
 			var dir = Str_map[action.trim_prefix('ui_')]
 			cardinal_create_from_node(selected_node, dir)
 

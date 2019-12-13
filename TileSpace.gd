@@ -59,6 +59,7 @@ func _ready():
 
 	# Take processing away from SpaceGraph so we can implement it here
 	graph.set_process(false)
+	graph.set_process_unhandled_input(false)
 
 
 	# add a gridnode at the origin 
@@ -70,7 +71,6 @@ func _ready():
 
 	#
 	open_tile = newtile
-
 
 	# # add a forest tile
 	# var ftile = ForestTile.new(newtile)
@@ -141,21 +141,20 @@ func add_node_to_tile(tile):
 
 func _on_node_release(node):
 	# snap to grid position else snap_back
-	print('graph edges ', graph.edges)
 	var ixy = notegrid.get_idx(node.position)
 	var snapped = false
 	if ixy != node.ixy:
 		var tile = notegrid.get(ixy)
 		if tile == null:
-			snap_to(node, ixy)
 			var new_tile = notegrid.new_tile(ixy)
 			new_tile.node = node
+			snap_to(node, ixy)
 			snapped = true
 		if tile != null:
 			if tile.node == null:
 				#1. there is a tile but it has no node
-				snap_to(node, ixy)
 				tile.node = node
+				snap_to(node, ixy)
 				snapped = true
 			# if there is a tile and it has a node
 				# pass
@@ -165,14 +164,19 @@ func _on_node_release(node):
 
 func snap_to(node, idx):
 	var prev_tile = notegrid.get(node.ixy)
-	prev_tile.node = null
+	if node.ixy == idx:
+		return 
 	var grect = notegrid.get_rect(idx)
 	node.position = grect.position + grect.size/2
 	node.ixy = idx
 	if node == graph.selected_node:
 		# update marker position
 		notegrid.move_marker(idx)
-	print('edges ', node.edges)
+		print('tile idx', prev_tile.idx, idx)
+		change_open_tile(prev_tile, notegrid.get(idx))
+
+	prev_tile.node = null
+
 	for edge_idx in node.edges:
 		if edge_idx != null:
 			var edge = graph.edges[edge_idx]
@@ -185,19 +189,19 @@ func _on_selected(tile):
 	# display
 	pass
 
-func _process(delta):
+func _unhandled_input(event):
 
 	for action in ['ui_right', 'ui_left', 'ui_down', 'ui_up']:
-		if Input.is_action_just_pressed(action):
+		if event.is_action(action) and event.pressed:
 			# 
 			var dir = Str_map[action.trim_prefix('ui_')]
 			var step = Dir_basis[dir]
-			var last_tile = notegrid.get(notegrid.marker_idx)
+			var last_tile = notegrid.get(notegrid.last_marker_idx)
 			# if !notegrid.check_idx(notegrid.marker_idx + step):
 				# !this moves the marker! 
 				# notegrid.extend() 
 			# is there a tileobject here?
-			var t_idx = notegrid.marker_idx + step
+			var t_idx = notegrid.marker_idx 
 			var oldtile = notegrid.get(t_idx)
 			if oldtile == null:
 				var newtile = notegrid.new_tile(t_idx)
@@ -219,6 +223,7 @@ func _process(delta):
 				else:
 					var newnode = add_node_to_tile(oldtile)
 					add_graph_edge(last_tile.node, dir, newnode, Dir_opp[dir])
+		get_tree().set_input_as_handled()
 
 func center_view():
 	position = get_viewport_rect().size/2

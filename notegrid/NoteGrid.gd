@@ -155,10 +155,10 @@ func _input_event(event):
 	if event is InputEventMouseButton and event.button == BUTTON_LEFT:
 		emit_signal('selected', get(get_idx(event.position)))
 
-func _process(delta):
+func _unhandled_input(event):
 
 	for action in ['ui_right', 'ui_left', 'ui_down', 'ui_up']:
-		if Input.is_action_just_pressed(action):
+		if event.is_action(action) and event.pressed:
 			last_marker_idx = marker_idx
 			move_marker(marker_idx + constants.Direction[action.trim_prefix('ui_')])
 
