@@ -25,7 +25,7 @@ var edges: Array = []
 
 
 # by selected node is the last to be added 
-var selected_node
+var head_node 
 
 # variables for default spacing when adding new nodes outside of grid
 var default_grid_spacing = 100
@@ -49,7 +49,7 @@ func add_node(node):
 	node.idx = nodes.size()
 	nodes.append(node)
 	add_child(node)
-	selected_node = node
+	head_node = node
 	return node.idx
 
 func delete_edge(edge):
@@ -73,7 +73,6 @@ func cardinal_create_from_node(origin, dir=Dir.RIGHT, spacing=default_grid_spaci
 	var new_idx = add_node(new_node)
 	var edge = add_edge(origin, dir, new_node, Dir_opp[dir])
 	edge.use_simple_line()
-
 	return new_node
 
 func _unhandled_input(event):
@@ -81,7 +80,7 @@ func _unhandled_input(event):
 	for action in ['ui_right', 'ui_left', 'ui_down', 'ui_up']:
 		if event.is_action(action) and event.pressed:
 			var dir = Str_map[action.trim_prefix('ui_')]
-			cardinal_create_from_node(selected_node, dir)
+			cardinal_create_from_node(head_node, dir)
 
 class Edge:
 	extends Node2D

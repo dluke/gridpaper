@@ -2,9 +2,9 @@ extends Sprite
 
 class_name CharacterMarker
 
-# export var white = Color('#ffffff')
-# var sizefactor = 0.55
-# onready var width = int(notegrid.size/15)
+# "draw marker"
+
+# TODO move out of this gridlayer
 
 onready var notegrid = get_parent()
 
@@ -22,6 +22,7 @@ func set_idx(idx):
 	var corner = Vector2(0.8*square.size.x, 0.7*square.size.y)
 	position = square.position + corner 
 	position.y -= scale.y * texture.get_size().y
+	update()
 
 
 # func _draw():

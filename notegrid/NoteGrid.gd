@@ -85,6 +85,7 @@ func move_marker(target):
 	assert(check_idx(target))
 	if has_node('CharacterMarker'):
 		$CharacterMarker.set_idx(target)
+		
 
 func set_focused():
 	# todo

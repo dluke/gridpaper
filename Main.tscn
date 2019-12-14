@@ -1,59 +1,15 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Main.gd" type="Script" id=1]
-[ext_resource path="res://TileSpace.gd" type="Script" id=2]
-[ext_resource path="res://SpaceGraph.gd" type="Script" id=3]
-[ext_resource path="res://notegrid/NoteGrid.gd" type="Script" id=4]
-[ext_resource path="res://notegrid/CursorMarker.gd" type="Script" id=5]
-[ext_resource path="res://notegrid/CharacterMarker.gd" type="Script" id=6]
-[ext_resource path="res://GUI/Glyph.gd" type="Script" id=7]
-[ext_resource path="res://svg/sign_glyph.svg" type="Texture" id=8]
-[ext_resource path="res://GUI/Draggable.gd" type="Script" id=9]
-[ext_resource path="res://GUI/SimpleNote.tscn" type="PackedScene" id=10]
-[ext_resource path="res://GUI/Inventory.tscn" type="PackedScene" id=11]
+[ext_resource path="res://TileSpace.tscn" type="PackedScene" id=2]
+[ext_resource path="res://GUI/Draggable.gd" type="Script" id=3]
+[ext_resource path="res://GUI/SimpleNote.tscn" type="PackedScene" id=4]
+[ext_resource path="res://GUI/Inventory.tscn" type="PackedScene" id=5]
 
 [node name="Main" type="Node2D"]
 script = ExtResource( 1 )
 
-[node name="TileSpace" type="Node2D" parent="."]
-script = ExtResource( 2 )
-
-[node name="SpaceGraph" type="Node2D" parent="TileSpace"]
-script = ExtResource( 3 )
-
-[node name="gridnodes go here" type="Node" parent="TileSpace/SpaceGraph"]
-
-[node name="GridLayer" type="CanvasLayer" parent="TileSpace"]
-layer = -1
-
-[node name="NoteGrid" type="Node2D" parent="TileSpace/GridLayer"]
-light_mask = 2
-scale = Vector2( 1, 0.997557 )
-script = ExtResource( 4 )
-extents = Vector2( 127, 127 )
-
-[node name="CursorMarker" type="Node2D" parent="TileSpace/GridLayer/NoteGrid"]
-script = ExtResource( 5 )
-
-[node name="CharacterMarker" type="Sprite" parent="TileSpace/GridLayer/NoteGrid"]
-script = ExtResource( 6 )
-
-[node name="GlyphHolder" type="Node2D" parent="TileSpace/GridLayer/NoteGrid"]
-scale = Vector2( 1, 1.00245 )
-
-[node name="StartPostGlyph" type="Control" parent="TileSpace/GridLayer/NoteGrid"]
-light_mask = 2
-margin_right = 40.0
-margin_bottom = 40.0
-rect_scale = Vector2( 1, 1.00054 )
-mouse_filter = 2
-script = ExtResource( 7 )
-grid_offset = Vector2( 0.2, 0.3 )
-
-[node name="Sprite" type="Sprite" parent="TileSpace/GridLayer/NoteGrid/StartPostGlyph"]
-modulate = Color( 0.71875, 0.71875, 0.71875, 1 )
-scale = Vector2( 1.0009, 0.91213 )
-texture = ExtResource( 8 )
+[node name="TileSpace" parent="." instance=ExtResource( 2 )]
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -61,15 +17,15 @@ texture = ExtResource( 8 )
 margin_top = 500.0
 margin_right = 40.0
 margin_bottom = 540.0
-script = ExtResource( 9 )
+script = ExtResource( 3 )
 
-[node name="SimpleNote" parent="CanvasLayer/Draggable" instance=ExtResource( 10 )]
+[node name="SimpleNote" parent="CanvasLayer/Draggable" instance=ExtResource( 4 )]
 margin_top = -1.43201
 margin_bottom = -1.43201
 rect_scale = Vector2( 1.00352, 1 )
 mouse_filter = 2
 
-[node name="Inventory" parent="CanvasLayer" instance=ExtResource( 11 )]
+[node name="Inventory" parent="CanvasLayer" instance=ExtResource( 5 )]
 visible = false
 margin_left = 431.798
 margin_top = 57.8937

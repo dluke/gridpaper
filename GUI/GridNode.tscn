@@ -34,6 +34,7 @@ script = ExtResource( 3 )
 shape = SubResource( 1 )
 
 [node name="c_collider" type="Area2D" parent="."]
+visible = false
 scale = Vector2( 0.995507, 0.961472 )
 script = ExtResource( 4 )
 

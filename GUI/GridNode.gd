@@ -11,6 +11,10 @@ class_name GridNode
 signal node_release
 # the opposite of 'select' is 'unselect'
 signal node_select
+#
+signal node_hovered
+signal node_unhovered
+signal node_moved_relative
 
 enum Dir {RIGHT, DOWN, LEFT, UP, DOWN_LAYER, UP_LAYER}
 
@@ -73,7 +77,7 @@ func get_position():
 func _ready():
 
 	# setup mouse collision
-	var input_box_size = Vector2(idle_radius, idle_radius)
+	var input_box_size = 2*Vector2(idle_radius, idle_radius)
 	$InputControl.rect_min_size = input_box_size
 	$InputControl.rect_position = -input_box_size/2
 	# var c_circle =  $c_collider.shape_owner_get_shape(0,0)
@@ -110,6 +114,7 @@ func _input(event):
 	if event is InputEventMouseMotion and grabbed == true:
 		rect_position += event.relative
 		moved += event.relative
+		emit_signal('node_moved_relative', self, event.relative)
 
 func _on_clicked(event):
 	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
@@ -167,31 +172,22 @@ func unselect():
 	selected = false
 	update()
 
-func _set_hovered():
-	pass
-	$c_sprite.visible = true
-	$c_sprite.z_index = 1
-	for arrow in arrows:
-		arrow.visible = true
-
-func _set_unhovered():
-	pass
-	$c_sprite.visible = false
-	for arrow in arrows:
-		arrow.visible = false
-		
-func _on_mouse_entered():
+func set_hovered():
 	hovered = 1
-	_scale_with(max_radius)
-	# _set_hovered()
 	update()
 
-func _on_mouse_exited():
+func set_unhovered():
 	hovered = 0
 	update()
-	# _set_unhovered()
-	# _scale_with(idle_radius)
+		
+func _on_mouse_entered():
+	set_hovered()
+	emit_signal('node_hovered', self)
 
+func _on_mouse_exited():
+	set_unhovered()
+	emit_signal('node_unhovered', self)
+	
 # sprite hovered animation ...
 
 

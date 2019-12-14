@@ -1,7 +1,7 @@
 extends Node2D
 
-var grabbed: bool = 0
 
+onready var notegrid = $TileSpace.notegrid
 onready var note = find_node("SimpleNote")
 onready var inventory = find_node("Inventory")
 
@@ -33,22 +33,8 @@ func _unhandled_input(event):
 
 	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
 		if event.pressed:
-
-			# todo, manage focus of note
 			note.release()
-
-			grabbed = 1 
-		else:
-			grabbed = 0 
-		get_tree().set_input_as_handled()
-
-	if event is InputEventMouseMotion and grabbed == true:
-		position += event.relative
-		find_node('NoteGrid').position += event.relative
-		# find_node('GridLayer').offset += event.relative
-		#
-		update()
-		get_tree().set_input_as_handled()
+		# get_tree().set_input_as_handled()
 
 	if event.is_action("toggle_inventory") and event.pressed:
 		if $Inventory.visible == true:
