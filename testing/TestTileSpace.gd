@@ -63,3 +63,17 @@ func _ready():
 	tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp + Vector2(0,1)))
 	tilespace.add_graph_edge(start_node, Dir.RIGHT, newnode, Dir.LEFT)
 
+	# viii
+	print('test viii')
+	disp = Vector2(0,-1)
+	start_node = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp))
+	newnode = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp + Vector2(1,0)))
+	tilespace.add_graph_edge(start_node, Dir.RIGHT, newnode, Dir.UP)
+
+	# ix
+	print('test ix')
+	disp = Vector2(0,5)
+	start_node = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp))
+	newnode = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp + Vector2(2,0)))
+	tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp + Vector2(1,0)))
+	tilespace.add_graph_edge(start_node, Dir.RIGHT, newnode, Dir.LEFT)

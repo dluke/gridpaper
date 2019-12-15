@@ -14,7 +14,7 @@ var drag_rect: Rect2
 var drag_from: Vector2
 
 const THRESHOLD = 0.0001
-func float_is_zero(a):
+func is_float_zero(a):
 	return abs(a) < THRESHOLD
 
 # Main references	
@@ -109,10 +109,19 @@ func compute_polyline(edge, tilespace):
 	var subidx_p = t_subgrid_idx.xform(subgrid_p)
 	var subidx_t = t_subgrid_idx.xform(subgrid_t)
 
+	var grid_v = edge.to.ixy - edge.from.ixy
 	var is_direct = false
-	if edge.direction_from == Dir_opp[edge.direction_to]:
-		var direct_path_blocked = _check_direct_path(edge.from, edge.to)
-		is_direct = (!direct_path_blocked.empty() and !direct_path_blocked.has(true))
+	var is_cardinal = grid_v.x == 0 or grid_v.y == 0
+	var is_blocked = false
+	var is_facing = false
+	if is_cardinal:
+		is_facing = (edge.direction_from == Dir_opp[edge.direction_to]
+						&& is_float_zero(cross(Dir_basis[edge.direction_from], grid_v))
+						)
+		if is_facing:
+			var direct_path_blocked = _check_direct_path(edge.from, edge.to)
+			is_blocked = direct_path_blocked.has(true)
+			is_direct = (!direct_path_blocked.empty() and !is_blocked)
 
 	# l1 distance on the subgrid
 	var sub_distance = l1_norm(subidx_p - subidx_t)
@@ -123,7 +132,8 @@ func compute_polyline(edge, tilespace):
 	# 
 	var p_line = [p_from, p_from + node_box_size * Dir_basis[edge.direction_from]]
 	var r_line = [p_to, p_to + node_box_size * Dir_basis[edge.direction_to]]
-	if sub_distance <= 1:
+	var grid_distance = l1_norm(edge.from.ixy - edge.to.ixy)
+	if sub_distance <= 1 && grid_distance > 1:
 		# bookkeeping
 		grid_edge[subidx_t] = 1 # todo
 		return append_reversed(p_line, r_line)
@@ -138,6 +148,9 @@ func compute_polyline(edge, tilespace):
 	var next_subpt_r = t_subgrid_xy.xform(next_subidx_r)
 	#
 	var pathline: Vector2
+	var pathline_r: Vector2
+	var targetline: Vector2
+	var sub_pathline: Vector2
 	var uf: Vector2
 	var ut: Vector2
 	var this_subpt: Vector2
@@ -146,6 +159,7 @@ func compute_polyline(edge, tilespace):
 	var this_subidx_r: Vector2
 	var npt: Vector2 # result
 	var sgn
+	var sgn_critical_pair: int
 	var u_diag
 	var u_diag_r
 	var skip
@@ -163,21 +177,32 @@ func compute_polyline(edge, tilespace):
 	this_subpt_r = subgrid_t
 	this_subidx = subidx_p
 	this_subidx_r = subidx_t
+	pathline = r_line[-1] - p_line[-1]
+	pathline_r = p_line[-1] - r_line[-1]
+	var last_subpt: Vector2
+	var last_subpt_r: Vector2
+	var proceed_condition = !is_blocked || !is_facing
 	for i in range(2):
-		# print('0 ', path_pidx, path_ridx)
+		# sgn_critical_pair = 0
 
 		# forward
-		pathline = r_line[-1] - p_line[-1]
-		proceed = (i > 0) && (abs(uf.angle_to(pathline)) < PI/4)
-		print('uf ', uf, ' pathline ', pathline)
-		print('proceed angle ', rad2deg(abs(uf.angle_to(pathline))) )
+		proceed = (i > 0) && (abs(uf.angle_to(pathline)) < PI/8) && proceed_condition
+		targetline = r_line[-1] - p_line[-1]
+		# print('uf ', uf, ' pathline ', pathline)
+		# print('proceed angle ', rad2deg(abs(uf.angle_to(pathline))) )
 		if proceed:
 			print('proceed pt')
 			p_line.append(p_line[-1] + 2*corner_offset * uf)
 		else:
+			# sgn = cross_sgn(uf, pathline)
 			sgn = cross_sgn(uf, pathline)
+			if sgn == 0:
+				sgn = cross_sgn(uf, targetline)
+				if sgn == 0:
+					sgn = cross_sgn(uf, next_subpt-this_subpt)
+			#
 			u_diag = uf.rotated(sgn*PI/4)
-			skip = i == 0 && float_is_zero(cross(u_diag, next_subpt-this_subpt))
+			skip = i == 0 && is_float_zero(cross(u_diag, next_subpt-this_subpt)) && grid_distance > 1
 			subpt_f = next_subpt if skip else this_subpt
 			subidx_f = next_subidx if skip else this_subidx
 			npt = _next_pt(p_line[-1], u_diag, subidx_f, subpt_f, 1)
@@ -186,17 +211,19 @@ func compute_polyline(edge, tilespace):
 				print('skip')
 				path_pidx += 1
 
-		# print('1 ', path_pidx, path_ridx)
-
 		# reverse
-		pathline = p_line[-1] - r_line[-1]
-		proceed = i > 0 && abs(uf.angle_to(pathline)) < PI/8
+		# pathline = p_line[-1] - r_line[-1]
+		# sub_pathline = next_subpt_r - this_subpt_r
+		targetline = p_line[-1] - r_line[-1]
+		proceed = i > 0 && abs(uf.angle_to(pathline_r)) < PI/8 && proceed_condition
 		if proceed:
 			p_line.append(p_line[-1] + 2*corner_offset * ut)
 		else:
-			sgn = cross_sgn(ut, pathline)
+			sgn = cross_sgn(ut, pathline_r)
+			if sgn == 0:
+				sgn = cross_sgn(ut, targetline)
 			u_diag_r = ut.rotated(sgn*PI/4)
-			skip = i == 0 && float_is_zero(cross(u_diag_r, next_subpt_r-this_subpt_r))
+			skip = i == 0 && is_float_zero(cross(u_diag_r, next_subpt_r-this_subpt_r)) && grid_distance > 1
 			subpt_r = next_subpt_r if skip else this_subpt_r
 			subidx_r = next_subidx_r if skip else this_subidx_r 
 			npt = _next_pt(r_line[-1], u_diag_r, subidx_r, subpt_r, 1)
@@ -215,7 +242,6 @@ func compute_polyline(edge, tilespace):
 		ut = sign(u_diag_r.y)*e_y if is_vertical else sign(u_diag_r.x)*e_x
 		#
 
-		print('2 ', path_pidx-1, path_ridx+1)
 		if line_identity(p_line[-1], uf, r_line[-1], ut):
 			print('break 1')
 			break
@@ -224,22 +250,26 @@ func compute_polyline(edge, tilespace):
 		path_pidx += 1
 		npt = _project_ray_to_box(p_line[-1], uf)
 		p_line.append(npt)
-		print('3 ', path_pidx-1, path_ridx+1)
-		if (path_pidx-1) == (path_ridx+1):
-			print('break 1.5')
-			break
 
+
+		if path_pidx > path_ridx:
+			print('break 2, ', path_pidx, ' ', path_ridx)
+			break
+		#
 		# reverse
 		path_ridx -= 1
 		npt = _project_ray_to_box(r_line[-1], ut)
 		r_line.append(npt)
-		print('4 ', path_pidx-1, path_ridx+1)
 
-		if (path_pidx-1) == (path_ridx+1):
-			print('break 2')
+		if path_pidx > path_ridx:
+			print('break 3, ', path_pidx, ' ', path_ridx)
 			break
 
 		# 
+		last_subpt = this_subpt
+		last_subpt_r = this_subpt_r
+		# 
+		# TODO respect /skip/ when choosing new subgrid targets 
 		this_subpt = next_subpt
 		this_subpt_r = next_subpt_r
 		this_subidx = next_subidx
@@ -249,6 +279,9 @@ func compute_polyline(edge, tilespace):
 		next_subidx_r = path[path_ridx-1]
 		next_subpt = t_subgrid_xy.xform(next_subidx)
 		next_subpt_r = t_subgrid_xy.xform(next_subidx_r)
+		#
+		pathline = this_subpt - last_subpt
+		pathline_r = this_subpt_r - last_subpt_r
 
 	# bookkeeping
 	return append_reversed(p_line, r_line)
@@ -364,8 +397,7 @@ func _check_direct_path(from, to):
 			var empty = false
 			if tile == null:
 				empty = true
-			else:
-				tile.node == null
+			elif tile.node == null:
 				empty = true
 			direct_path_blocked.push_back(!empty)
 	return direct_path_blocked
@@ -438,6 +470,7 @@ func _on_node_release(node):
 			_release_node(node)
 	else:
 		_release_node(node)
+		update_edges([node])
 	#
 	update_edges(selected_nodes)
 

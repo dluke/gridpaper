@@ -82,6 +82,7 @@ func _unhandled_input(event):
 			var dir = Str_map[action.trim_prefix('ui_')]
 			cardinal_create_from_node(head_node, dir)
 
+
 class Edge:
 	extends Node2D
 
@@ -98,6 +99,10 @@ class Edge:
 
 	const edge_width_f = 0.2
 	var edge_width: float
+	
+	# for debugging
+	var draw_points = true
+
 
 	func _init(from_, d_from, to_, d_to):
 		from = from_
@@ -112,4 +117,7 @@ class Edge:
 
 	func _draw():
 		draw_polyline(p_line, edge_base_color, edge_width)
+		if draw_points:
+			for i in range(1, p_line.size()-1):
+				draw_circle(p_line[i], 3, colors.red_highlight)
 
