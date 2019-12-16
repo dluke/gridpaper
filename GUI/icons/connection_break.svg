@@ -9,13 +9,16 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="32.130219"
-   height="32.163082"
-   viewBox="0 0 8.5011202 8.5098156"
+   width="32"
+   height="32"
+   viewBox="0 0 8.4666666 8.4666668"
    version="1.1"
    id="svg1258"
    inkscape:version="0.92.3 (2405546, 2018-03-11)"
-   sodipodi:docname="connection_break.svg">
+   sodipodi:docname="connection_break.svg"
+   inkscape:export-filename="/home/dan/godot/first_project/GUI/icons/connection_break.svg.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
   <defs
      id="defs1252" />
   <sodipodi:namedview
@@ -26,7 +29,7 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="12.261552"
-     inkscape:cx="49.085348"
+     inkscape:cx="25.597294"
      inkscape:cy="5.6380684"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -57,15 +60,15 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-17.133082,-281.09892)">
+     transform="translate(-17.133082,-281.14207)">
     <path
-       style="opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#909090;stroke-width:0.5291667;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       d="m 17.320192,281.28599 8.091183,8.09299"
+       style="opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#909090;stroke-width:1.05833328;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 17.507302,281.50799 7.684307,7.68606"
        id="path2327"
        inkscape:connector-curvature="0" />
     <path
-       style="opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#909090;stroke-width:0.52916676;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       d="m 25.447093,281.32868 -8.091183,8.09299"
+       style="opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#909090;stroke-width:1.05833328;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 25.22553,281.54853 -7.684306,7.68607"
        id="path2327-9"
        inkscape:connector-curvature="0" />
   </g>

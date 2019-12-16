@@ -191,9 +191,9 @@ class TileObject:
 		gnode.position = grect.position + grect.size/2
 		var nodesize = (0.2 * grect.size).ceil()
 		gnode.idle_radius = int(nodesize.x/2)
-		gnode.max_radius = int(0.25 * grect.size.x/2)
 		gnode.ixy = idx
 		node = gnode
+		gnode.tile = self
 		return gnode
 
 

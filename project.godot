@@ -1,0 +1,93 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=4
+
+_global_script_classes=[ {
+"base": "Sprite",
+"class": "CharacterMarker",
+"language": "GDScript",
+"path": "res://notegrid/CharacterMarker.gd"
+}, {
+"base": "Node2D",
+"class": "CursorMarker",
+"language": "GDScript",
+"path": "res://notegrid/CursorMarker.gd"
+}, {
+"base": "Control",
+"class": "Draggable",
+"language": "GDScript",
+"path": "res://GUI/Draggable.gd"
+}, {
+"base": "Control",
+"class": "GridNode",
+"language": "GDScript",
+"path": "res://GUI/GridNode.gd"
+}, {
+"base": "Node2D",
+"class": "NoteGrid",
+"language": "GDScript",
+"path": "res://notegrid/NoteGrid.gd"
+}, {
+"base": "LineEdit",
+"class": "SafeLineEdit",
+"language": "GDScript",
+"path": "res://GUI/SafeLineEdit.gd"
+}, {
+"base": "TextEdit",
+"class": "SafeTextEdit",
+"language": "GDScript",
+"path": "res://GUI/SafeTextEdit.gd"
+}, {
+"base": "Node2D",
+"class": "SpaceGraph",
+"language": "GDScript",
+"path": "res://SpaceGraph.gd"
+} ]
+_global_script_class_icons={
+"CharacterMarker": "",
+"CursorMarker": "",
+"Draggable": "",
+"GridNode": "",
+"NoteGrid": "",
+"SafeLineEdit": "",
+"SafeTextEdit": "",
+"SpaceGraph": ""
+}
+
+[application]
+
+config/name="project"
+run/main_scene="res://Main.tscn"
+config/icon="res://icon.png"
+
+[autoload]
+
+constants="*res://global/constants.gd"
+colors="*res://global/colors.gd"
+
+[display]
+
+window/size/width=1920
+window/size/height=1080
+
+[editor_plugins]
+
+enabled=PoolStringArray( "dialog_graph" )
+
+[input]
+
+toggle_inventory={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":73,"unicode":0,"echo":false,"script":null)
+ ]
+}
+
+[rendering]
+
+environment/default_clear_color=Color( 0.301961, 0.301961, 0.301961, 1 )

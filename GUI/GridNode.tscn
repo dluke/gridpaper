@@ -1,16 +1,9 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://GUI/GridNode.gd" type="Script" id=1]
-[ext_resource path="res://GUI/InputControl.gd" type="Script" id=2]
-[ext_resource path="res://GUI/GridNode/limit_collider.gd" type="Script" id=3]
-[ext_resource path="res://GUI/Area2DButton.gd" type="Script" id=4]
-[ext_resource path="res://light/white_circle.png" type="Texture" id=5]
-
-[sub_resource type="RectangleShape2D" id=1]
-extents = Vector2( 23.9112, 24.8831 )
-
-[sub_resource type="CircleShape2D" id=2]
-radius = 31.5665
+[ext_resource path="res://GUI/GridNode/EdgeControl.gd" type="Script" id=2]
+[ext_resource path="res://GUI/InputControl.gd" type="Script" id=3]
+[ext_resource path="res://light/white_circle.png" type="Texture" id=4]
 
 [node name="GridNode" type="Control"]
 margin_left = 1.0
@@ -20,31 +13,30 @@ margin_bottom = 1.0
 mouse_filter = 2
 script = ExtResource( 1 )
 
-[node name="InputControl" type="Control" parent="."]
+[node name="EdgeControl" type="Control" parent="."]
 margin_right = 40.0
 margin_bottom = 40.0
-mouse_filter = 1
+mouse_filter = 2
 script = ExtResource( 2 )
 
-[node name="limit_collider" type="Area2D" parent="."]
-visible = false
+[node name="InputControl" type="Control" parent="EdgeControl"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -20.0
+margin_top = -20.0
+margin_right = 20.0
+margin_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
 script = ExtResource( 3 )
-
-[node name="Square" type="CollisionShape2D" parent="limit_collider"]
-shape = SubResource( 1 )
-
-[node name="c_collider" type="Area2D" parent="."]
-visible = false
-scale = Vector2( 0.995507, 0.961472 )
-script = ExtResource( 4 )
-
-[node name="Circle" type="CollisionShape2D" parent="c_collider"]
-shape = SubResource( 2 )
 
 [node name="Light2D" type="Light2D" parent="."]
 visible = false
 position = Vector2( 2.39655, -1.16638 )
-texture = ExtResource( 5 )
+texture = ExtResource( 4 )
 texture_scale = 0.25
 mode = 1
 range_layer_min = -1

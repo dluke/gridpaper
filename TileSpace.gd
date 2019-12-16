@@ -432,8 +432,6 @@ func add_graph_edge(from, d_from, to, d_to):
 	var edge = graph.add_edge(from, d_from, to, d_to)
 	edge.p_line = compute_polyline(edge, self)
 
-# func update_ed
-
 func delete_graph_edge(from, to):
 	pass
 
@@ -467,12 +465,16 @@ func unselect_nodes():
 func _on_node_release(node):
 	if node.selected:
 		for node in selected_nodes:
+			node.tile.node = null
+			node.tile = null
+		for node in selected_nodes:
 			_release_node(node)
+		update_edges(selected_nodes)
 	else:
+		node.tile.node = null
+		node.tile = null
 		_release_node(node)
 		update_edges([node])
-	#
-	update_edges(selected_nodes)
 
 func _release_node(node):
 	# snap to grid position else snap_back
@@ -483,12 +485,14 @@ func _release_node(node):
 		if tile == null:
 			var new_tile = notegrid.new_tile(ixy)
 			new_tile.node = node
+			node.tile = new_tile
 			snap_to(node, ixy)
 			snapped = true
-		if tile != null:
+		elif tile != null:
 			if tile.node == null:
 				#1. there is a tile but it has no node
 				tile.node = node
+				node.tile = tile
 				snap_to(node, ixy)
 				snapped = true
 			# if there is a tile and it has a node
@@ -508,7 +512,6 @@ func snap_to(node, idx):
 		# update marker position
 		notegrid.move_marker(idx)
 		change_open_tile(prev_tile, notegrid.get(idx))
-	prev_tile.node = null
 	update()
 
 func update_edges(nodes):	
@@ -613,7 +616,6 @@ func _unhandled_input(event):
 				# ...
 				newtile.visited = true
 				var newnode = newtile.add_gridnode()
-				newnode.connect('node_release', self, '_on_node_release') 
 				change_open_tile(last_tile, newtile)
 
 				add_graph_node(newnode)
