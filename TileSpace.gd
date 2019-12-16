@@ -18,11 +18,16 @@ func is_float_zero(a):
 	return abs(a) < THRESHOLD
 
 # Main references	
+
 onready var graph = $SpaceGraph
 onready var notegrid = find_node('NoteGrid')
-onready var gsize = float(notegrid.size)
-
 var open_tile # reference to the node whose description we are displaying
+
+var gsize
+var glyph_height
+var t_subgrid_xy
+var t_subgrid_idx
+
 
 # node connection algorithm
 
@@ -42,13 +47,6 @@ var Str_map = {'right':0, 'down':1, 'left':2, 'up':3}
 var _grid_edge  = {}
 var _subgrid_edge = {}
 
-onready var sub_origin = gsize/2 * e_x
-onready var sub_x = Vector2(1,-1) * gsize/2
-onready var sub_y = Vector2(1,1) * gsize/2
-
-onready var t_subgrid_xy = Transform2D(gsize/2 * Vector2(1,-1), gsize/2 * Vector2(1,1), Vector2(gsize/2,0))
-onready var t_subgrid_idx = Transform2D(1/gsize * Vector2(1,1), 1/gsize * Vector2(-1,1), Vector2(-0.5,-0.5))
-
 #
 var selected_nodes = []
 
@@ -61,16 +59,25 @@ func to_sub_xy(pos, dir):
 
 # Called when the node enters the scene tree for the first time.
 
-func _ready():
+func _ready_gridsize():
+	gsize = float(notegrid.size)
+	glyph_height = gsize/4
 
-	# set background_color
-	VisualServer.set_default_clear_color(background_color)
-
-	# constant parameters
-	gsize = notegrid.size
+	# edge drawing parameters
 	node_box_size = int(5*gsize/16)
 	edge_offset = int(gsize/20) 
 	corner_offset = int(3*gsize/20)
+
+	# sub grid transforms
+	t_subgrid_xy = Transform2D(gsize/2 * Vector2(1,-1), gsize/2 * Vector2(1,1), Vector2(gsize/2,0))
+	t_subgrid_idx = Transform2D(1/gsize * Vector2(1,1), 1/gsize * Vector2(-1,1), Vector2(-0.5,-0.5))
+
+func _ready():
+
+	_ready_gridsize()
+
+	# set background_color
+	VisualServer.set_default_clear_color(background_color)
 
 	#
 	center_view()
@@ -406,6 +413,11 @@ func _check_direct_path(from, to):
 
 func add_graph_node(node):
 	graph.add_node(node)
+	for arrow in node.arrows:
+		arrow.position = gsize/2 * arrow.position.normalized()
+		var glyph_scale = glyph_height/arrow.get_height()
+		arrow.scale = Vector2(glyph_scale, glyph_scale)
+
 	node.connect('node_release', self, '_on_node_release') 
 	node.connect('node_select', self, '_on_node_select') 
 	node.connect('node_hovered', self, '_on_node_hovered') 
@@ -447,7 +459,7 @@ func change_open_tile(oldtile, tile):
 	emit_signal('new_open_tile', oldtile, tile)
 
 func add_node_to_tile(tile):
-	var space_node = tile.add_gridnode()
+	var space_node = tile_add_gridnode(tile)
 	add_graph_node(space_node)
 	return space_node
 
@@ -517,9 +529,8 @@ func snap_to(node, idx):
 func update_edges(nodes):	
 	for node in nodes:
 		# TODO this will recompute edges twice
-		for edge_idx in node.edges:
-			if edge_idx != null:
-				var edge = graph.edges[edge_idx]
+		for edge in node.edges:
+			if edge != null:
 				# TODO cannot recompute edges until all nodes are released
 				print("recompute polyline")
 				edge.p_line = compute_polyline(edge, self)
@@ -615,7 +626,7 @@ func _unhandled_input(event):
 				# set newtile background here
 				# ...
 				newtile.visited = true
-				var newnode = newtile.add_gridnode()
+				var newnode = tile_add_gridnode(newtile)
 				change_open_tile(last_tile, newtile)
 
 				add_graph_node(newnode)
@@ -636,6 +647,18 @@ func center_view():
 	# need to re-center this object because it is on a separate canvas layer
 	notegrid.center_view()
 
+
+func tile_add_gridnode(tile):
+	# put the node inside a panel box and center it 
+	var gnode = graph.create_node()
+	var grect = notegrid.get_rect(tile.idx)
+	gnode.position = grect.position + grect.size/2
+	var nodesize = (0.2 * grect.size).ceil()
+	gnode.idle_radius = int(nodesize.x/2)
+	gnode.ixy = tile.idx
+	tile.node = gnode
+	gnode.tile = tile 
+	return gnode
 
 # utils
 

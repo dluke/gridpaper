@@ -37,13 +37,18 @@ func add_edge(node_i, d_from, node_j, d_to):
 	var edge = Edge.new(node_i, d_from, node_j, d_to)
 	edge.idx = edges.size()
 	edges.append(edge)
-	node_i.edges[d_from] = edge.idx
-	node_j.edges[d_to] = edge.idx
+	node_i.add_edge(d_from, edge)
+	node_j.add_edge(d_to, edge)
 	add_child(edge)
 	return edge
 
 func create_node():
-	return gridnode.instance()
+	var newnode = gridnode.instance()
+	newnode.connect('break_edge', self, '_on_break_edge')
+	return newnode
+
+func _on_break_edge(edge):
+	delete_edge(edge)
 
 func add_node(node):
 	node.idx = nodes.size()
@@ -53,6 +58,8 @@ func add_node(node):
 	return node.idx
 
 func delete_edge(edge):
+	edge.from.remove_edge(edge.direction_from)
+	edge.to.remove_edge(edge.direction_to)
 	edges.remove(edge.idx)
 	for i in range(edge.idx, edges.size()):
 		edges[i].idx -= 1

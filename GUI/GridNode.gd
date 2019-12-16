@@ -15,11 +15,15 @@ signal node_select
 signal node_hovered
 signal node_unhovered
 signal node_moved_relative
+#
+signal node_make_edge
+signal break_edge
 
 enum Dir {RIGHT, DOWN, LEFT, UP, DOWN_LAYER, UP_LAYER}
 
 
-var arrow_texture = preload('res://GUI/icons/arrow.png')
+var EdgeAction_factory = preload('res://GUI/EdgeAction.tscn')
+# var arrow_texture = preload('res://GUI/icons/arrow.png')
 var arrows: Array
 
 # node colors
@@ -34,7 +38,7 @@ var idle_border_width: int = 3
 var arrow_offset = 50 + 15.20
 
 export var idle_radius: int = 16
-export var select_radius: int = idle_radius + 4
+export var select_radius: int = idle_radius + 1
 export var grid_rect_size: Vector2 =  Vector2(50,50)
 # 
 # unique gridnode index 
@@ -72,6 +76,14 @@ func _init():
 	edges = []
 	edges.resize(6)
 
+func add_edge(dir, edge):
+	edges[dir] = edge
+	arrows[dir].set_state(0)
+
+func remove_edge(dir):
+	edges[dir] = null
+	arrows[dir].set_state(1)
+
 func set_position(position):
 	rect_position = position
 
@@ -88,7 +100,7 @@ func _ready():
 	edgecontrol = find_node('EdgeControl')
 
 	# setup mouse collision
-	var box_size = Vector2(160,160)  # this box size should be set by TileSpace
+	var box_size = Vector2(100,100)  # this box size should be set by TileSpace
 	set_box_size(box_size)
 
 	var input_box_size = 2*Vector2(select_radius, select_radius)
@@ -96,6 +108,8 @@ func _ready():
 
 	# connect 
 	edgecontrol.connect("mouse_exited", self, "_on_mouse_exit_box")
+	edgecontrol.connect("hovered_quadrant", self, "_on_hovered_quadrant")
+	edgecontrol.connect("clicked_quadrant", self, "_on_clicked_quadrant")
 
 	inputcontrol.connect("mouse_entered", self, "_on_mouse_entered")
 	inputcontrol.connect("mouse_exited", self, "_on_mouse_exited")
@@ -103,21 +117,35 @@ func _ready():
 
 	# setup arrows
 	var direction = constants.Direction.values()
+	arrows = []
 	arrows.resize(4)
 	for i in range(4):
-		var arrow = Sprite.new()
-		arrow.texture = arrow_texture
+		var action = EdgeAction_factory.instance()
 		 # needs scaling
-		arrow.position = 40 * direction[i] 
-		arrow.rotation += i*PI/2
-		arrows[i] = arrow
-		add_child(arrow)
-		arrow.visible = false
+		action.position = 40 * direction[i] 
+		action.rotation += i*PI/2
+		arrows[i] = action 
+		add_child(action)
 		# collision
 		# arrow.connect("clicked", self, '_on_arrow_clicked', [arrow])
 
 	_scale_with(idle_radius)
 
+
+func _on_hovered_quadrant(quadrant):
+	for i in range(4):
+		if i == quadrant:
+			arrows[i].modulate = Color(1,1,1)
+		else:
+			arrows[i].modulate = colors.black
+
+func _on_clicked_quadrant(quadrant):
+	var this_arrow = arrows[quadrant]
+	if this_arrow.curr_state == 0:
+		emit_signal('break_edge', edges[quadrant])
+	elif this_arrow.curr_state == 1:
+		emit_signal('node_make_edge', self, quadrant)
+	
 func _input(event):
 	if event is InputEventMouseMotion and grabbed == true:
 		rect_position += event.relative
@@ -133,9 +161,6 @@ func _on_clicked(event):
 			if moved.length_squared() < moved_threshold_squared:
 				toggle_select()
 			ungrab()
-
-func _on_arrow_clicked(event, arrow):
-	print('clicked arrow at ', arrow.position)
 
 func _scale_with(radius):
 	idle_border_width = max(int(radius/4),3)
@@ -204,17 +229,15 @@ func set_unactivated():
 
 func _on_mouse_entered():
 	set_hovered()
-	# set_activated()
+	set_activated()
 	emit_signal('node_hovered', self)
 
 func _on_mouse_exited():
-	print('mouse exit')
 	set_unhovered()
 	emit_signal('node_unhovered', self)
 	
 func _on_mouse_exit_box():
-	print('mouse exit box')
-	# set_unactivated()
+	set_unactivated()
 	emit_signal('node_unhovered', self)
 
 
