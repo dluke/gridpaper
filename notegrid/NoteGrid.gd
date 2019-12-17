@@ -30,14 +30,21 @@ var nn_basis = [Vector2(1,0), Vector2(1,1), Vector2(0,1), Vector2(-1,1), Vector2
 # dep
 var default_extension = Vector2(3,3)
 
+
+func set_size(size_):
+	size = size_
+	square_size = Vector2(size, size)
+	boardsize = size * gridsize
+
 func set_extents(extents_):
 	extents = extents_
 	gridsize = 2*extents + Vector2(1,1)
 	boardsize = size * gridsize
 
 func _ready():
+	set_size(size)
+	set_extents(extents)
 
-	boardsize = gridsize * square_size
 	marker_idx = extents
 	last_marker_idx = marker_idx
 	grid = _new_grid(gridsize)
@@ -46,6 +53,11 @@ func _ready():
 	# center_view()
 	
 	$CharacterMarker.set_idx(marker_idx)
+
+	# Sig
+	var signpost = $SignPostGlyph
+	signpost.center_at(get_pos(extents) + signpost.uv*square_size)
+
 
 
 func center_view():

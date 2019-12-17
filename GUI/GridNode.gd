@@ -1,4 +1,4 @@
-extends Control
+extends Node2D
 
 class_name GridNode
 
@@ -7,7 +7,9 @@ class_name GridNode
 5 distinct Areas which respond to input: node, right, down, left, up
 """
 
+
 # release is opposite of grab
+signal node_grabbed
 signal node_release
 # the opposite of 'select' is 'unselect'
 signal node_select
@@ -23,28 +25,38 @@ enum Dir {RIGHT, DOWN, LEFT, UP, DOWN_LAYER, UP_LAYER}
 
 
 var EdgeAction_factory = preload('res://GUI/EdgeAction.tscn')
+enum State {Connect, Disconnect, Incoming}
+var transition_to_incoming = {State.Connect:State.Incoming, State.Disconnect:-1}
+var transition_to_normal = {-1:State.Disconnect, State.Incoming:State.Connect}
+
 # var arrow_texture = preload('res://GUI/icons/arrow.png')
 var arrows: Array
+
+var make_edge_state = false
 
 # node colors
 export var base_color = Color('d4d4d4')
 var idle_border_color = Color('6f9dc5')
 var idle_border_width: int = 3
 
+# unique gridnode index 
+var idx: int
+var z_level: int = 0
+# index in the grid
+var ixy: Vector2
+
 # var node_texture = preload('res://GUI/icons/node_circle.svg')
 # var arrow_texture = preload('res://GUI/icons/node_arrow.svg')
 
 # the distance from the center of the node to the center of the arrow
 var arrow_offset = 50 + 15.20
+var box_size = Vector2(100,100)  # this box size should be set by TileSpace
 
 export var idle_radius: int = 16
-export var select_radius: int = idle_radius + 1
-export var grid_rect_size: Vector2 =  Vector2(50,50)
+export var select_margin: int = 1
+var select_radius: int
+# export var select_radius: int = idle_radius + 1
 # 
-# unique gridnode index 
-var idx: int
-# index in the grid
-var ixy: Vector2
 
 var hovered: bool = 0
 var grabbed: bool = 0 
@@ -55,9 +67,6 @@ export var grabbable: bool = 1
 
 # state triggered after mouse over
 var activated = false
-
-# mimick area2d 
-var position: Vector2 setget set_position, get_position
 
 enum EdgeDir {RIGHT, UP, LEFT, DOWN}
 
@@ -70,7 +79,6 @@ var inputcontrol: Control
 var edgecontrol: Control
 
 func _init():
-	rect_min_size = Vector2(0,0)
 
 	# new instance, new array	
 	edges = []
@@ -78,17 +86,27 @@ func _init():
 
 func add_edge(dir, edge):
 	edges[dir] = edge
-	arrows[dir].set_state(0)
+	arrows[dir].set_state(1)
 
 func remove_edge(dir):
 	edges[dir] = null
-	arrows[dir].set_state(1)
+	arrows[dir].set_state(0)
 
-func set_position(position):
-	rect_position = position
 
-func get_position():
-	return rect_position
+func _state_transition(transition):
+	for arrow in arrows:
+		if transition.has(arrow.curr_state):
+			arrow.set_state(transition[arrow.curr_state])
+
+func set_state_incoming():
+	_state_transition(transition_to_incoming)
+	make_edge_state = true
+	set_activated()
+
+func set_state_normal():
+	_state_transition(transition_to_normal)
+	make_edge_state = false
+	set_unactivated()
 
 func set_box_size(box_size):
 	edgecontrol.rect_min_size = box_size
@@ -100,11 +118,7 @@ func _ready():
 	edgecontrol = find_node('EdgeControl')
 
 	# setup mouse collision
-	var box_size = Vector2(100,100)  # this box size should be set by TileSpace
 	set_box_size(box_size)
-
-	var input_box_size = 2*Vector2(select_radius, select_radius)
-	inputcontrol.rect_min_size = input_box_size
 
 	# connect 
 	edgecontrol.connect("mouse_exited", self, "_on_mouse_exit_box")
@@ -129,8 +143,15 @@ func _ready():
 		# collision
 		# arrow.connect("clicked", self, '_on_arrow_clicked', [arrow])
 
-	_scale_with(idle_radius)
+	scale_with(idle_radius)
 
+func scale_with(radius):
+	idle_radius = radius
+	select_radius = idle_radius + select_margin
+	idle_border_width = max(int(radius/4),3)
+	
+	var input_box_size = 2*Vector2(select_radius, select_radius)
+	inputcontrol.rect_min_size = input_box_size
 
 func _on_hovered_quadrant(quadrant):
 	for i in range(4):
@@ -140,15 +161,21 @@ func _on_hovered_quadrant(quadrant):
 			arrows[i].modulate = colors.black
 
 func _on_clicked_quadrant(quadrant):
+	print('clicked ', quadrant)
 	var this_arrow = arrows[quadrant]
-	if this_arrow.curr_state == 0:
-		emit_signal('break_edge', edges[quadrant])
-	elif this_arrow.curr_state == 1:
-		emit_signal('node_make_edge', self, quadrant)
+	if !make_edge_state:
+		if this_arrow.curr_state == 1:
+			emit_signal('break_edge', edges[quadrant])
+		elif this_arrow.curr_state == 0:
+			emit_signal('node_make_edge', self, quadrant)
+	else:
+		if this_arrow.curr_state == State.Incoming:
+			emit_signal('node_make_edge', self, quadrant)
+
 	
 func _input(event):
 	if event is InputEventMouseMotion and grabbed == true:
-		rect_position += event.relative
+		position += event.relative
 		moved += event.relative
 		emit_signal('node_moved_relative', self, event.relative)
 
@@ -157,14 +184,16 @@ func _on_clicked(event):
 		if event.pressed:
 			if grabbable:
 				grab()
+				# print('event.global_position, ', event.global_position)
+				# print(to_local(event.global_position))
+				emit_signal('node_grabbed', self)
 		elif !event.pressed:
 			if moved.length_squared() < moved_threshold_squared:
+				print('toggle select after moving ', moved)
 				toggle_select()
 			ungrab()
 
-func _scale_with(radius):
-	idle_border_width = max(int(radius/4),3)
-	
+
 func _draw():
 	# border_color = idle_border_color
 	if hovered:
@@ -177,16 +206,22 @@ func _draw():
 		draw_circle_custom(idle_radius + 2, colors.white, 2)
 
 
-# func snap_back():
-# 	position = get_position(get_idx(ixy))
+func attach(_tile):
+	tile = _tile
+	tile.node = self
+
+func detach():
+	tile.node = null
+	tile = null
+
 
 func grab():
 	grabbed = 1
+	set_unactivated()
 
 func ungrab():
 	grabbed = 0
 	moved = Vector2(0,0)
-	# snap_back()
 	emit_signal('node_release', self)
 
 
@@ -237,8 +272,9 @@ func _on_mouse_exited():
 	emit_signal('node_unhovered', self)
 	
 func _on_mouse_exit_box():
-	set_unactivated()
-	emit_signal('node_unhovered', self)
+	if !make_edge_state:
+		set_unactivated()
+	# emit_signal('node_unhovered', self)
 
 
 ### 

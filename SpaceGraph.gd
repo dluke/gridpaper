@@ -1,5 +1,7 @@
 extends Node2D
 
+signal new_edge
+
 var gridnode = preload('res://GUI/GridNode.tscn')
 
 class_name SpaceGraph
@@ -11,6 +13,11 @@ Should interact with NoteGrid (if that is child?)
 
 # nodes draw themselves, SpaceGraph draws edges
 """
+
+var enable_cardinal_add_nodes = true
+var make_edge_state = false
+var make_edge_from: GridNode
+var make_edge_from_direction: int
 
 enum Dir {RIGHT, DOWN, LEFT, UP, DOWN_LAYER, UP_LAYER}
 var Dir_opp = [Dir.LEFT, Dir.UP, Dir.RIGHT, Dir.DOWN, Dir.UP_LAYER, Dir.DOWN_LAYER]
@@ -45,10 +52,43 @@ func add_edge(node_i, d_from, node_j, d_to):
 func create_node():
 	var newnode = gridnode.instance()
 	newnode.connect('break_edge', self, '_on_break_edge')
+	newnode.connect('node_make_edge', self, '_on_node_make_edge')
+	newnode.connect('node_grabbed', self, '_on_node_grabbed')
 	return newnode
+
+
+func _on_node_grabbed(node):
+	node.position = to_local(get_viewport().get_mouse_position())
+	# node.moved 
 
 func _on_break_edge(edge):
 	delete_edge(edge)
+
+func activate_incoming(excluded):
+	for node in nodes:
+		if node != excluded:
+			node.set_state_incoming()
+
+func deactivate_incoming(excluded):
+	for node in nodes:
+		if node != excluded:
+			node.set_state_normal()
+
+func _on_node_make_edge(node, quadrant):
+	if !make_edge_state:
+		make_edge_state = true
+		make_edge_from = node
+		make_edge_from_direction = quadrant
+		# active nodes
+		activate_incoming(node)
+	else:
+		if node != make_edge_from:
+			# connect
+			var edge = add_edge(make_edge_from, make_edge_from_direction, node, quadrant)
+			edge.use_simple_line()
+			emit_signal('new_edge', edge)
+		make_edge_state = false
+		deactivate_incoming(make_edge_from)
 
 func add_node(node):
 	node.idx = nodes.size()
@@ -83,11 +123,22 @@ func cardinal_create_from_node(origin, dir=Dir.RIGHT, spacing=default_grid_spaci
 	return new_node
 
 func _unhandled_input(event):
+	if make_edge_state && event is InputEventMouseButton:
+		make_edge_state = false
+		deactivate_incoming(make_edge_from)
+
+		# unhandled input goes from root -> leaves
+		# if event is InputEventMouseButton:
+			# get_tree().set_input_as_handled()
+		# if event is InputEventMouseMotion:
+			# get_tree().set_input_as_handled()
+
 	# add new nodes 
-	for action in ['ui_right', 'ui_left', 'ui_down', 'ui_up']:
-		if event.is_action(action) and event.pressed:
-			var dir = Str_map[action.trim_prefix('ui_')]
-			cardinal_create_from_node(head_node, dir)
+	if enable_cardinal_add_nodes:
+		for action in ['ui_right', 'ui_left', 'ui_down', 'ui_up']:
+			if event.is_action(action) and event.pressed:
+				var dir = Str_map[action.trim_prefix('ui_')]
+				cardinal_create_from_node(head_node, dir)
 
 
 class Edge:

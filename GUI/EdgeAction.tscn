@@ -12,3 +12,7 @@ texture = ExtResource( 2 )
 
 [node name="Disconnect" type="Sprite" parent="."]
 texture = ExtResource( 3 )
+
+[node name="Incoming" type="Sprite" parent="."]
+rotation = 3.14159
+texture = ExtResource( 2 )

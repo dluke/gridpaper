@@ -29,6 +29,7 @@ func _gui_input(event):
 		assert(quadrant != -1)
 		quadrant = _get_quadrant(event.position)
 		emit_signal('clicked_quadrant', quadrant)
+		accept_event()
 
 
 func _get_quadrant(pos):

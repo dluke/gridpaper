@@ -83,9 +83,11 @@ func _ready():
 	center_view()
 
 	# Take processing away from SpaceGraph so we can implement it here
-	graph.set_process(false)
-	graph.set_process_unhandled_input(false)
+	graph.enable_cardinal_add_nodes = false
+	# graph.set_process(false)
+	# graph.set_process_unhandled_input(false)
 
+	graph.connect('new_edge', self, '_on_new_edge')
 
 	# add a gridnode at the origin 
 	var origin_idx = notegrid.extents
@@ -101,6 +103,10 @@ func _ready():
 	# var ftile = ForestTile.new(newtile)
 	# ftile.faded = 1
 	# newtile.tile = ftile
+
+func _on_new_edge(edge):
+	edge.p_line = compute_polyline(edge, self)
+
 
 
 # algorithm 
@@ -420,6 +426,7 @@ func add_graph_node(node):
 
 	node.connect('node_release', self, '_on_node_release') 
 	node.connect('node_select', self, '_on_node_select') 
+
 	node.connect('node_hovered', self, '_on_node_hovered') 
 	node.connect('node_unhovered', self, '_on_node_unhovered') 
 	node.connect('node_moved_relative', self, '_on_node_moved_relative') 
@@ -477,15 +484,16 @@ func unselect_nodes():
 func _on_node_release(node):
 	if node.selected:
 		for node in selected_nodes:
-			node.tile.node = null
-			node.tile = null
+			assert(node.tile != null)
+			node.detach()
 		for node in selected_nodes:
 			_release_node(node)
 		update_edges(selected_nodes)
 	else:
-		node.tile.node = null
-		node.tile = null
+		assert(node.tile != null)
+		node.detach()
 		_release_node(node)
+		node.set_activated()
 		update_edges([node])
 
 func _release_node(node):
@@ -510,6 +518,7 @@ func _release_node(node):
 			# if there is a tile and it has a node
 				# pass
 	if !snapped:
+		node.attach(notegrid.get(node.ixy))
 		snap_to(node, node.ixy)
 
 func snap_to(node, idx):
@@ -557,15 +566,8 @@ func _update_drag(mpos):
 			node.selected = true
 			selected_nodes.push_back(node)
 			node.update()
-
 	update()
 
-static func make_rectangle(p,q):
-	var min_x = min(p.x, q.x)
-	var max_x = max(p.x, q.x)
-	var min_y = min(p.y, q.y)
-	var max_y = max(p.y, q.y)
-	return Rect2(min_x, min_y, max_x-min_x, max_y-min_y)
 
 func select_tile(tile_idx):
 	var tile = notegrid.get(tile_idx)
@@ -581,7 +583,7 @@ func _draw():
 
 func _unhandled_input(event):
 
-	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
+	if event is InputEventMouseButton and event.button_index == BUTTON_RIGHT:
 		if event.pressed:
 			grabbed = 1 
 		else:
@@ -592,7 +594,7 @@ func _unhandled_input(event):
 			grabbed = 0 
 			moved = Vector2()
 
-	if event is InputEventMouseButton and event.button_index == BUTTON_RIGHT:
+	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
 		if event.pressed:
 			_start_drag(to_local(event.position))
 		else:
@@ -655,6 +657,7 @@ func tile_add_gridnode(tile):
 	gnode.position = grect.position + grect.size/2
 	var nodesize = (0.2 * grect.size).ceil()
 	gnode.idle_radius = int(nodesize.x/2)
+	gnode.box_size = notegrid.square_size
 	gnode.ixy = tile.idx
 	tile.node = gnode
 	gnode.tile = tile 
@@ -681,6 +684,13 @@ static func cross(v, u):
 static func cross_sgn(v, u):
 	return sign(v.x*u.y - v.y*u.x)
 
+
+static func make_rectangle(p,q):
+	var min_x = min(p.x, q.x)
+	var max_x = max(p.x, q.x)
+	var min_y = min(p.y, q.y)
+	var max_y = max(p.y, q.y)
+	return Rect2(min_x, min_y, max_x-min_x, max_y-min_y)
 
 static func append_reversed(p_line, r_line):
 	for i in range(1, r_line.size()+1):
