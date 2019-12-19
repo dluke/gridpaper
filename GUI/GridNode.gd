@@ -37,7 +37,6 @@ var make_edge_state = false
 # node colors
 export var base_color = Color('d4d4d4')
 var idle_border_color = Color('6f9dc5')
-var idle_border_width: int = 3
 
 # unique gridnode index 
 var idx: int
@@ -54,9 +53,8 @@ var box_size = Vector2(100,100)  # this box size should be set by TileSpace
 
 export var idle_radius: int = 16
 export var select_margin: int = 1
+export var idle_border_width: int = 3
 var select_radius: int
-# export var select_radius: int = idle_radius + 1
-# 
 
 var hovered: bool = 0
 var grabbed: bool = 0 
@@ -158,7 +156,7 @@ func _on_hovered_quadrant(quadrant):
 		if i == quadrant:
 			arrows[i].modulate = Color(1,1,1)
 		else:
-			arrows[i].modulate = colors.black
+			arrows[i].modulate = Color(144,144,144)
 
 func _on_clicked_quadrant(quadrant):
 	print('clicked ', quadrant)

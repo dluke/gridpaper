@@ -13,6 +13,8 @@ var drag_select = false
 var drag_rect: Rect2
 var drag_from: Vector2
 
+export var connection_max_xy = Vector2(2,2)
+
 const THRESHOLD = 0.0001
 static func is_float_zero(a):
 	return abs(a) < THRESHOLD
@@ -73,19 +75,15 @@ func _ready_gridsize():
 	t_subgrid_idx = Transform2D(1/gsize * Vector2(1,1), 1/gsize * Vector2(-1,1), Vector2(-0.5,-0.5))
 
 func _ready():
-
 	_ready_gridsize()
 
 	# set background_color
 	VisualServer.set_default_clear_color(background_color)
-
 	#
 	center_view()
 
 	# Take processing away from SpaceGraph so we can implement it here
 	graph.enable_cardinal_add_nodes = false
-	# graph.set_process(false)
-	# graph.set_process_unhandled_input(false)
 
 	graph.connect('new_edge', self, '_on_new_edge')
 
@@ -103,10 +101,6 @@ func _ready():
 	# var ftile = ForestTile.new(newtile)
 	# ftile.faded = 1
 	# newtile.tile = ftile
-
-func _on_new_edge(edge):
-	edge.p_line = compute_polyline(edge, self)
-
 
 
 # algorithm 
@@ -200,8 +194,9 @@ func compute_polyline(edge, tilespace):
 	var last_subpt_r: Vector2
 	var proceed_condition = !is_blocked || !is_facing
 	# print('path ', path)
-	for i in range(3):
 	# for i in range(1):
+	for i in range(3):
+	# for i in range(10):
 
 		# forward
 		proceed = (i > 0) && (abs(uf.angle_to(pathline)) < PI/8) && proceed_condition
@@ -438,32 +433,17 @@ func _check_direct_path(from, to):
 func add_graph_node(node):
 	graph.add_node(node)
 	for arrow in node.arrows:
-		arrow.position = gsize/2 * arrow.position.normalized()
+		arrow.position = gsize/4 * arrow.position.normalized()
 		var glyph_scale = glyph_height/arrow.get_height()
 		arrow.scale = Vector2(glyph_scale, glyph_scale)
 
 	node.connect('node_release', self, '_on_node_release') 
 	node.connect('node_select', self, '_on_node_select') 
 
+	# move to spacegraph
 	node.connect('node_hovered', self, '_on_node_hovered') 
 	node.connect('node_unhovered', self, '_on_node_unhovered') 
 	node.connect('node_moved_relative', self, '_on_node_moved_relative') 
-
-func _on_node_hovered(node):
-	if node.selected:
-		for node in selected_nodes:
-			node.set_hovered()
-
-func _on_node_moved_relative(node, relative):
-	if node.selected:
-		for nd in selected_nodes:
-			if nd == node:
-				continue
-			nd.position += relative
-
-func _on_node_unhovered(node):
-	for node in selected_nodes:
-		node.set_unhovered()
 
 func add_graph_edge(from, d_from, to, d_to):
 	var edge = graph.add_edge(from, d_from, to, d_to)
@@ -487,6 +467,27 @@ func add_node_to_tile(tile):
 	var space_node = tile_add_gridnode(tile)
 	add_graph_node(space_node)
 	return space_node
+
+### START SIGNALS
+
+func _on_node_hovered(node):
+	if node.selected:
+		for node in selected_nodes:
+			node.set_hovered()
+
+func _on_node_moved_relative(node, relative):
+	if node.selected:
+		for nd in selected_nodes:
+			if nd == node:
+				continue
+			nd.position += relative
+
+func _on_node_unhovered(node):
+	for node in selected_nodes:
+		node.set_unhovered()
+		
+func _on_new_edge(edge):
+	edge.p_line = compute_polyline(edge, self)
 
 func _on_node_select(node):
 	unselect_nodes()
@@ -563,9 +564,8 @@ func update_edges(nodes):
 				edge.p_line = compute_polyline(edge, self)
 				edge.update()
 
-func _on_selected(tile):
-	# display
-	pass
+### END SIGNALS
+
 
 func _start_drag(mpos):	
 	drag_select = true
@@ -621,7 +621,8 @@ func _unhandled_input(event):
 	if event is InputEventMouseMotion: 
 		if grabbed == true:
 			position += event.relative
-			find_node('NoteGrid').position += event.relative
+			notegrid.position += event.relative
+			notegrid.update()
 			moved += event.relative
 			update()
 			get_tree().set_input_as_handled()
@@ -634,9 +635,6 @@ func _unhandled_input(event):
 			var dir = Str_map[action.trim_prefix('ui_')]
 			var step = Dir_basis[dir]
 			var last_tile = notegrid.get(notegrid.last_marker_idx)
-			# if !notegrid.check_idx(notegrid.marker_idx + step):
-				# !this moves the marker! 
-				# notegrid.extend() 
 
 			# is there a tileobject here?
 			var t_idx = notegrid.marker_idx 
@@ -661,6 +659,7 @@ func _unhandled_input(event):
 					var newnode = add_node_to_tile(oldtile)
 					add_graph_edge(last_tile.node, dir, newnode, Dir_opp[dir])
 			get_tree().set_input_as_handled()
+
 
 func center_view():
 	position = get_viewport_rect().size/2
@@ -688,6 +687,10 @@ static func line_identity(ref_u, u, ref_v, v):
 	return u.abs().round() == v.abs().round() and (ref_v - ref_u).normalized().abs().round() == u.abs().round()
 
 static func l1_norm(v):
+	return abs(v.x) + abs(v.y)
+
+static func min_norm(v):
+	return 
 	return abs(v.x) + abs(v.y)
 
 static func sgn_h(pt):

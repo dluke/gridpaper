@@ -14,6 +14,8 @@ export var extents = Vector2(1,1) setget set_extents
 var gridsize: Vector2 = 2*extents + Vector2(1,1)
 
 export var size = 80
+export var tick_size_factor = Vector2(0.2,0.2)
+var tick_size: Vector2
 var square_size = Vector2(size, size)
 var grid = []  # 2d tile grid
 var boardsize: Vector2 = gridsize * square_size
@@ -34,6 +36,7 @@ var default_extension = Vector2(3,3)
 func set_size(size_):
 	size = size_
 	square_size = Vector2(size, size)
+	tick_size = tick_size_factor * square_size
 	boardsize = size * gridsize
 
 func set_extents(extents_):
@@ -144,14 +147,33 @@ func _draw():
 	# we might like to draw tile by tile 
 	var y_edge = (extents.y + 0.5)*size
 	var x_edge = (extents.x + 0.5)*size
-	for i in range(gridsize.x+1):
-		var ix = (i-extents.x-0.5)*size
-		draw_line(Vector2(ix, -y_edge), Vector2(ix, y_edge), gridcolor, 1)
+	# for i in range(gridsize.x+1):
+	# 	var ix = (i-extents.x-0.5)*size
+	# 	draw_line(Vector2(ix, -y_edge), Vector2(ix, y_edge), gridcolor, 1)
 		
-	for i in range(gridsize.y+1):
-		var iy = (i-extents.y-0.5)*size
-		draw_line(Vector2(-x_edge, iy), Vector2(x_edge, iy), gridcolor, 1)
+	# for i in range(gridsize.y+1):
+	# 	var iy = (i-extents.y-0.5)*size
+	# 	draw_line(Vector2(-x_edge, iy), Vector2(x_edge, iy), gridcolor, 1)
+	var vpr = get_viewport_rect()
+	var lpos = to_local(vpr.position)
+	var xpos = to_local(vpr.end)
+	var start = (lpos/square_size).floor() - Vector2(1,1)
+	var end = (xpos/square_size).ceil() + Vector2(1,1)
 
+	for i in range(start.x, end.x+1):
+		var ix = (i-0.5)*size
+		for j in range(start.y, end.y+1):
+			var iy = (j-0.5)*size
+			_draw_cross(Vector2(ix, iy), tick_size)
+
+func _draw_cross(xy:Vector2, tick_size: Vector2):
+	var x_m = Vector2(-tick_size.x/2,0)
+	var x_p = Vector2(tick_size.x/2,0)
+	var y_m = Vector2(0, -tick_size.y/2)
+	var y_p = Vector2(0, tick_size.y/2)
+
+	draw_line(xy+x_m, xy+x_p, gridcolor, 1)
+	draw_line(xy+y_m, xy+y_p, gridcolor, 1)
 
 func _input_event(event):
 	if event is InputEventMouseButton and event.button == BUTTON_LEFT:

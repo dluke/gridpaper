@@ -9,17 +9,17 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="18.587652"
-   height="18.234547"
-   viewBox="0 0 4.9179829 4.8245572"
+   width="17.508595"
+   height="9.9142752"
+   viewBox="0 0 4.6324822 2.623152"
    version="1.1"
    id="svg1258"
    inkscape:version="0.92.3 (2405546, 2018-03-11)"
-   sodipodi:docname="connection_break.svg"
+   sodipodi:docname="connect_arrow.svg"
+   shape-rendering="crispEdges"
    inkscape:export-filename="/home/dan/godot/first_project/GUI/icons/connection_arrow.png"
    inkscape:export-xdpi="96"
-   inkscape:export-ydpi="96"
-   style="shape-rendering:crispEdges">
+   inkscape:export-ydpi="96">
   <defs
      id="defs1252" />
   <sodipodi:namedview
@@ -29,18 +29,18 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="32"
-     inkscape:cx="18.005235"
-     inkscape:cy="14.716501"
+     inkscape:zoom="11.313709"
+     inkscape:cx="12.154168"
+     inkscape:cy="6.1647208"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
      units="px"
-     inkscape:window-width="2560"
-     inkscape:window-height="1385"
-     inkscape:window-x="2560"
-     inkscape:window-y="27"
-     inkscape:window-maximized="1"
+     inkscape:window-width="963"
+     inkscape:window-height="747"
+     inkscape:window-x="2972"
+     inkscape:window-y="63"
+     inkscape:window-maximized="0"
      fit-margin-top="0"
      fit-margin-left="0.4"
      fit-margin-right="0"
@@ -50,8 +50,8 @@
        type="xygrid"
        id="grid5435"
        empspacing="1"
-       originx="-0.23846289"
-       originy="2.1272744" />
+       originx="-0.38462389"
+       originy="-0.021452272" />
   </sodipodi:namedview>
   <metadata
      id="metadata1255">
@@ -69,16 +69,18 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-2.7945565,-289.95993)">
+     transform="translate(-2.9407175,-290.01261)">
     <path
-       style="fill:none;stroke:#ffffff;stroke-width:0.52916664;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 3.0895456,290.14702 4.4359049,4.43591"
-       id="path5439"
-       inkscape:connector-curvature="0" />
+       style="opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#ffffff;stroke-width:0.26458332;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 5.5078172,291.20061 h -1.492972 v 1.30286 H 2.9407175"
+       id="path1660-5"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc" />
     <path
-       style="fill:none;stroke:#ffffff;stroke-width:0.52916664;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 7.5233835,290.16149 3.0874786,294.5974"
-       id="path5439-6"
-       inkscape:connector-curvature="0" />
+       style="fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:0.26458332;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 5.6133788,292.16992 1.6926729,-0.9648 -1.6926729,-0.96483 v 0.96483 z"
+       id="path1641-7-3"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccc" />
   </g>
 </svg>
