@@ -15,7 +15,10 @@
    version="1.1"
    id="svg1258"
    inkscape:version="0.92.3 (2405546, 2018-03-11)"
-   sodipodi:docname="line_arrow.svg">
+   sodipodi:docname="line_arrow.svg"
+   inkscape:export-filename="/home/dan/godot/first_project/GUI/icons/line_arrow.svg.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
   <defs
      id="defs1252" />
   <sodipodi:namedview
@@ -25,18 +28,18 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="12.261552"
-     inkscape:cx="26.412851"
-     inkscape:cy="21.734114"
+     inkscape:zoom="6.130776"
+     inkscape:cx="16.278401"
+     inkscape:cy="22.256461"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
-     inkscape:window-width="2493"
-     inkscape:window-height="1412"
-     inkscape:window-x="67"
-     inkscape:window-y="0"
-     inkscape:window-maximized="1"
+     inkscape:window-width="963"
+     inkscape:window-height="386"
+     inkscape:window-x="2943"
+     inkscape:window-y="775"
+     inkscape:window-maximized="0"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
@@ -61,7 +64,9 @@
     <g
        id="g2239"
        transform="matrix(0.9708688,0,0,0.97027893,-0.5060769,8.3735033)"
-       style="opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#909090;stroke-width:1.09042013;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1">
+       style="opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#909090;stroke-width:1.09042013;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96">
       <path
          inkscape:connector-curvature="0"
          id="path2218"

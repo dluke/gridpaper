@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.7"
-     inkscape:cx="1665.4045"
-     inkscape:cy="805.51736"
+     inkscape:zoom="0.49497475"
+     inkscape:cx="1272.9688"
+     inkscape:cy="794.70347"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -139,5 +139,22 @@
            x="1655.7142"
            y="-105.71429"
            style="fill:#ffffff" /></flowRegion><flowPara
-         id="flowPara3326-3-8">terrain</flowPara></flowRoot>  </g>
+         id="flowPara3326-3-8">terrain</flowPara></flowRoot>    <rect
+       style="opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#ffffff;stroke-width:0.26499999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect3247-5"
+       width="103.83871"
+       height="61.835346"
+       x="245.01707"
+       y="102.78063" />
+    <path
+       style="opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#ffffff;stroke-width:0.26499999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 249.93079,126.21515 h 18.14285 l -8.69344,-16.63094 z"
+       id="path3289-0"
+       inkscape:connector-curvature="0" />
+    <path
+       style="opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#ffffff;stroke-width:0.26499999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 273.27822,109.58421 h 18.14285 l -8.69344,16.63094 z"
+       id="path3289-8-9"
+       inkscape:connector-curvature="0" />
+  </g>
 </svg>

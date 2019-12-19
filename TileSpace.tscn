@@ -23,6 +23,7 @@ light_mask = 2
 scale = Vector2( 1, 0.997557 )
 script = ExtResource( 3 )
 extents = Vector2( 127, 127 )
+size = 120
 
 [node name="CursorMarker" type="Node2D" parent="GridLayer/NoteGrid"]
 script = ExtResource( 4 )

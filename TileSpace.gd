@@ -14,7 +14,7 @@ var drag_rect: Rect2
 var drag_from: Vector2
 
 const THRESHOLD = 0.0001
-func is_float_zero(a):
+static func is_float_zero(a):
 	return abs(a) < THRESHOLD
 
 # Main references	
@@ -130,6 +130,7 @@ func compute_polyline(edge, tilespace):
 	if is_cardinal:
 		is_facing = (edge.direction_from == Dir_opp[edge.direction_to]
 						&& is_float_zero(cross(Dir_basis[edge.direction_from], grid_v))
+						&& sign(Dir_basis[edge.direction_from].dot(grid_v)) > 0
 						)
 		if is_facing:
 			var direct_path_blocked = _check_direct_path(edge.from, edge.to)
@@ -157,8 +158,11 @@ func compute_polyline(edge, tilespace):
 	var path_ridx = path.size()-1
 	var next_subidx = path[path_pidx+1]
 	var next_subidx_r = path[path_ridx-1]
-	var next_subpt = t_subgrid_xy.xform(next_subidx)
-	var next_subpt_r = t_subgrid_xy.xform(next_subidx_r)
+	var real_path = []
+	for p in path:
+		real_path.push_back(t_subgrid_xy.xform(p))
+	var next_subpt = real_path[path_pidx+1]
+	var next_subpt_r = real_path[path_ridx-1]
 	#
 	var pathline: Vector2
 	var pathline_r: Vector2
@@ -195,14 +199,13 @@ func compute_polyline(edge, tilespace):
 	var last_subpt: Vector2
 	var last_subpt_r: Vector2
 	var proceed_condition = !is_blocked || !is_facing
-	for i in range(2):
-		# sgn_critical_pair = 0
+	# print('path ', path)
+	for i in range(3):
+	# for i in range(1):
 
 		# forward
 		proceed = (i > 0) && (abs(uf.angle_to(pathline)) < PI/8) && proceed_condition
 		targetline = r_line[-1] - p_line[-1]
-		# print('uf ', uf, ' pathline ', pathline)
-		# print('proceed angle ', rad2deg(abs(uf.angle_to(pathline))) )
 		if proceed:
 			print('proceed pt')
 			p_line.append(p_line[-1] + 2*corner_offset * uf)
@@ -213,6 +216,7 @@ func compute_polyline(edge, tilespace):
 				sgn = cross_sgn(uf, targetline)
 				if sgn == 0:
 					sgn = cross_sgn(uf, next_subpt-this_subpt)
+			assert(sgn != 0)
 			#
 			u_diag = uf.rotated(sgn*PI/4)
 			skip = i == 0 && is_float_zero(cross(u_diag, next_subpt-this_subpt)) && grid_distance > 1
@@ -221,7 +225,7 @@ func compute_polyline(edge, tilespace):
 			npt = _next_pt(p_line[-1], u_diag, subidx_f, subpt_f, 1)
 			p_line.append(npt)
 			if skip:
-				print('skip')
+				print('skip f')
 				path_pidx += 1
 
 		# reverse
@@ -235,6 +239,8 @@ func compute_polyline(edge, tilespace):
 			sgn = cross_sgn(ut, pathline_r)
 			if sgn == 0:
 				sgn = cross_sgn(ut, targetline)
+				# if sgn == 0:
+			assert(sgn != 0)
 			u_diag_r = ut.rotated(sgn*PI/4)
 			skip = i == 0 && is_float_zero(cross(u_diag_r, next_subpt_r-this_subpt_r)) && grid_distance > 1
 			subpt_r = next_subpt_r if skip else this_subpt_r
@@ -242,20 +248,21 @@ func compute_polyline(edge, tilespace):
 			npt = _next_pt(r_line[-1], u_diag_r, subidx_r, subpt_r, 1)
 			r_line.append(npt)
 			if skip:
-				print('skip')
+				print('skip r')
 				path_ridx -= 1
 
 		# forward
-		is_vertical = int(l1_norm(subidx_f)) % 2 == 0
+		is_vertical = int(round(l1_norm(subidx_f))) % 2 == 0
 		uf = sign(u_diag.y)*e_y if is_vertical else sign(u_diag.x)*e_x
 		#
 
 		# reverse
-		is_vertical = int(l1_norm(subidx_r)) % 2 == 0
+		is_vertical = int(round(l1_norm(subidx_r))) % 2 == 0
 		ut = sign(u_diag_r.y)*e_y if is_vertical else sign(u_diag_r.x)*e_x
 		#
 
 		if line_identity(p_line[-1], uf, r_line[-1], ut):
+			print('i = ', i)
 			print('break 1')
 			break
 
@@ -264,8 +271,8 @@ func compute_polyline(edge, tilespace):
 		npt = _project_ray_to_box(p_line[-1], uf)
 		p_line.append(npt)
 
-
 		if path_pidx > path_ridx:
+			print('i = ', i)
 			print('break 2, ', path_pidx, ' ', path_ridx)
 			break
 		#
@@ -275,6 +282,7 @@ func compute_polyline(edge, tilespace):
 		r_line.append(npt)
 
 		if path_pidx > path_ridx:
+			print('i = ', i)
 			print('break 3, ', path_pidx, ' ', path_ridx)
 			break
 
@@ -283,15 +291,15 @@ func compute_polyline(edge, tilespace):
 		last_subpt_r = this_subpt_r
 		# 
 		# TODO respect /skip/ when choosing new subgrid targets 
-		this_subpt = next_subpt
-		this_subpt_r = next_subpt_r
-		this_subidx = next_subidx
-		this_subidx_r = next_subidx_r
+		this_subidx = path[path_pidx]
+		this_subidx_r = path[path_ridx]
+		this_subpt = real_path[path_pidx]
+		this_subpt_r = real_path[path_ridx]
 		#
 		next_subidx = path[path_pidx+1]
 		next_subidx_r = path[path_ridx-1]
-		next_subpt = t_subgrid_xy.xform(next_subidx)
-		next_subpt_r = t_subgrid_xy.xform(next_subidx_r)
+		next_subpt = real_path[path_pidx+1]
+		next_subpt_r = real_path[path_ridx-1]
 		#
 		pathline = this_subpt - last_subpt
 		pathline_r = this_subpt_r - last_subpt_r
@@ -302,7 +310,7 @@ func compute_polyline(edge, tilespace):
 
 func _next_pt(lpt, u_diag, subidx, subpt, track_sgn):
 	var line: Array # pair
-	if int(l1_norm(subidx)) % 2 == 0:
+	if int(round(l1_norm(subidx))) % 2 == 0:
 		line = _get_vertical_support(subpt, track_sgn)
 	else:
 		line = _get_horizontal_support(subpt, track_sgn)
@@ -317,7 +325,7 @@ func _get_horizontal_support(subpt, sgn):
 func _project_ray_to_line(lpt, u, ref, v):
 	# using Cramer's rule
 	var div = v.x*u.y - v.y*u.x
-	if div == 0:
+	if is_float_zero(div):
 		# critical case
 		return lpt 
 	var c = ref-lpt
@@ -326,6 +334,7 @@ func _project_ray_to_line(lpt, u, ref, v):
 
 func _project_ray_to_box(lpt, u):
 	# assert u is either vertical or horizonatal
+	u = u.round()
 	var p = notegrid.get_pos(notegrid.get_idx(lpt)) + notegrid.square_size/2
 	if u.x == 0: # vertical
 		return Vector2(lpt.x,  p.y + sign(u.y)*(gsize/2 - corner_offset) )
@@ -337,13 +346,15 @@ func _project_ray_to_box(lpt, u):
 func _pathing(sub_p, sub_t):
 	var path = [sub_p]
 	var pathline = sub_t-sub_p
-	var d = l1_norm(pathline)
-	var remainder
+	var d = round(l1_norm(pathline))
+	var remainder: Vector2
 	# set up heuristics
 	var heuristic = []
-	if pathline.x != 0:
+	var pathline_x_is_zero = is_float_zero(pathline.x)
+	var pathline_y_is_zero = is_float_zero(pathline.y)
+	if !pathline_x_is_zero:
 		heuristic.append(sign(pathline.x)*e_x)
-	if pathline.y != 0:
+	if !pathline_y_is_zero:
 		heuristic.append(sign(pathline.y)*e_y)
 	var shortcut = []
 	var is_horizontal: bool
@@ -358,36 +369,43 @@ func _pathing(sub_p, sub_t):
 			break
 		#	
 		used_shortcut = false
-		if !shortcut.empty() && pathline.x != 0 && pathline.y != 0:
+		if !shortcut.empty() && d > 1 && !pathline_x_is_zero && !pathline_y_is_zero:
 			var permit = false # permit shortcut
 			if is_horizontal:
-				permit = sgn_h(path[-1]) == 0
+				permit = sgn_h(path[-1].round()) == 0
 			else:
-				permit = sgn_v(path[-1]) == 0
+				permit = sgn_v(path[-1].round()) == 0
 			#	
 			if permit:
 				remainder = pathline - shortcut[0]
-				if l1_norm(remainder) < d:
+				if round(l1_norm(remainder)) < d:
 					pathline = remainder
-					path.push_back(path[-1]+shortcut[0])
+					path.push_back((path[-1]+shortcut[0]).round())
 					used_shortcut = true
 					_prune(heuristic, pathline)
 		if !used_shortcut:
-			pathline -= heuristic[0]
-			path.push_back(path[-1]+heuristic[0])
+			var step 
+			if heuristic.size() == 1:
+				step = heuristic[0]
+			else:
+				if abs(pathline.x) > abs(pathline.y): 
+					step = heuristic[0]
+				else:
+					step = heuristic[1]
+			pathline -= step
+			path.push_back((path[-1]+step).round())
 			_prune(heuristic, pathline)
 			
-		d = l1_norm(pathline)
-		# print ('p ', path, pathline)
+		d = round(l1_norm(pathline))
 
-	assert(path[-1] == sub_t)
+	assert(path[-1].round() == sub_t.round())
 	return path
 
 static func _prune(heuristic, pathline):
 	if heuristic.size()>1:
-		if pathline.x == 0:
+		if is_float_zero(pathline.x):
 			heuristic.remove(0)
-		elif pathline.y == 0:
+		elif is_float_zero(pathline.y):
 			heuristic.remove(1)
 
 func _check_direct_path(from, to):
@@ -667,7 +685,7 @@ func tile_add_gridnode(tile):
 
 static func line_identity(ref_u, u, ref_v, v):
 	# is second condition sufficient?
-	return u.abs() == v.abs() and (ref_v - ref_u).normalized().abs() == u.abs()
+	return u.abs().round() == v.abs().round() and (ref_v - ref_u).normalized().abs().round() == u.abs().round()
 
 static func l1_norm(v):
 	return abs(v.x) + abs(v.y)

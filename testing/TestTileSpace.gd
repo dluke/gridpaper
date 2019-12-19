@@ -13,6 +13,8 @@ func _ready():
 
 	var start_node
 	var newnode 
+
+
 	# testing node connections
 	# i
 	print('test i')
@@ -22,14 +24,14 @@ func _ready():
 
 	# ii
 	print('test ii')
-	disp = Vector2(3,0)
+	disp = Vector2(1,0)
 	start_node = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp))
 	newnode = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp + Vector2(1,1)))
 	tilespace.add_graph_edge(start_node, Dir.RIGHT, newnode, Dir.LEFT)
 
 	# iii
 	print('test iii')
-	disp = Vector2(6,0)
+	disp = Vector2(3,0)
 	start_node = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp))
 	newnode = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp + Vector2(0,1)))
 	tilespace.add_graph_edge(start_node, Dir.RIGHT, newnode, Dir.LEFT)
@@ -77,3 +79,45 @@ func _ready():
 	newnode = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp + Vector2(2,0)))
 	tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp + Vector2(1,0)))
 	tilespace.add_graph_edge(start_node, Dir.RIGHT, newnode, Dir.LEFT)
+
+	# x
+	print('test x')
+	disp = Vector2(-1,0)
+	start_node = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp))
+	newnode = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp + Vector2(-2,0)))
+	tilespace.add_graph_edge(start_node, Dir.DOWN, newnode, Dir.RIGHT)
+
+	# xi
+	print('test xi')
+	disp = Vector2(-1,2)
+	start_node = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp))
+	newnode = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp + Vector2(-3,-1)))
+	tilespace.add_graph_edge(start_node, Dir.LEFT, newnode, Dir.RIGHT)
+
+	# xii
+	print('test xii')
+	disp = Vector2(4,0)
+	start_node = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp))
+	newnode = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp + Vector2(2,1)))
+	tilespace.add_graph_edge(start_node, Dir.RIGHT, newnode, Dir.LEFT)
+
+	# xiii
+	print('test xiii')
+	disp = Vector2(-1,-1)
+	start_node = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp))
+	newnode = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp + Vector2(-2,-2)))
+	tilespace.add_graph_edge(start_node, Dir.RIGHT, newnode, Dir.UP)
+
+	# xiv
+	print('test xiv')
+	disp = Vector2(-2,-1)
+	start_node = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp))
+	newnode = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp + Vector2(-2,-2)))
+	tilespace.add_graph_edge(start_node, Dir.DOWN, newnode, Dir.RIGHT)
+
+	# xv
+	print('test xv')
+	disp = Vector2(0,-3)
+	start_node = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp))
+	newnode = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp + Vector2(1,1)))
+	tilespace.add_graph_edge(start_node, Dir.UP, newnode, Dir.RIGHT)
