@@ -213,6 +213,9 @@ class TileObject:
 	func get_size():
 		return upref.square_size
 
+	func tile_has_node():
+		return node != null
+
 	func _ready():
 		# add the drawable object
 		if tile != null:

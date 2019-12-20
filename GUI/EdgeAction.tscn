@@ -1,8 +1,12 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://GUI/EdgeAction.gd" type="Script" id=1]
 [ext_resource path="res://GUI/icons/connection_arrow.png" type="Texture" id=2]
 [ext_resource path="res://GUI/icons/connection_break.png" type="Texture" id=3]
+
+[sub_resource type="StreamTexture" id=1]
+flags = 4
+load_path = "res://.import/connection_arrow.png-a063ecd1e423459810bd2f418daa6cf8.stex"
 
 [node name="EdgeAction" type="Node2D"]
 script = ExtResource( 1 )
@@ -10,10 +14,13 @@ script = ExtResource( 1 )
 [node name="Connect" type="Sprite" parent="."]
 position = Vector2( 0, -0.142395 )
 texture = ExtResource( 2 )
+vframes = 2
 
 [node name="Disconnect" type="Sprite" parent="."]
 texture = ExtResource( 3 )
+vframes = 2
 
 [node name="Incoming" type="Sprite" parent="."]
 rotation = 3.14159
-texture = ExtResource( 2 )
+texture = SubResource( 1 )
+vframes = 2

@@ -32,3 +32,12 @@ func set_state(state):
 		return 
 	else:
 		add_child(states[state])
+
+func highlight_on():
+	for state in states:
+		state.frame = 1
+
+func highlight_off():
+	for state in states:
+		state.frame = 0
+

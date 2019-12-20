@@ -32,11 +32,9 @@ var transition_to_normal = {-1:State.Disconnect, State.Incoming:State.Connect}
 # var arrow_texture = preload('res://GUI/icons/arrow.png')
 var arrows: Array
 
-var make_edge_state = false
-
 # node colors
 export var base_color = Color('d4d4d4')
-var idle_border_color = Color('6f9dc5')
+export var idle_border_color = Color('6f9dc5')
 
 # unique gridnode index 
 var idx: int
@@ -44,11 +42,7 @@ var z_level: int = 0
 # index in the grid
 var ixy: Vector2
 
-# var node_texture = preload('res://GUI/icons/node_circle.svg')
-# var arrow_texture = preload('res://GUI/icons/node_arrow.svg')
 
-# the distance from the center of the node to the center of the arrow
-var arrow_offset = 50 + 15.20
 var box_size = Vector2(100,100)  # this box size should be set by TileSpace
 
 export var idle_radius: int = 16
@@ -59,11 +53,15 @@ var select_radius: int
 var hovered: bool = 0
 var grabbed: bool = 0 
 var moved: Vector2
-const moved_threshold_squared: int = 25
 var selected: bool = 0  # multiple nodes can be selected
-export var grabbable: bool = 1
+var grabbable: bool = 1
+const moved_threshold_squared: int = 25
 
-# state triggered after mouse over
+
+# flags
+#
+var make_edge_state = false
+# triggered after mouse over
 var activated = false
 
 enum EdgeDir {RIGHT, UP, LEFT, DOWN}
@@ -82,29 +80,6 @@ func _init():
 	edges = []
 	edges.resize(6)
 
-func add_edge(dir, edge):
-	edges[dir] = edge
-	arrows[dir].set_state(1)
-
-func remove_edge(dir):
-	edges[dir] = null
-	arrows[dir].set_state(0)
-
-
-func _state_transition(transition):
-	for arrow in arrows:
-		if transition.has(arrow.curr_state):
-			arrow.set_state(transition[arrow.curr_state])
-
-func set_state_incoming():
-	_state_transition(transition_to_incoming)
-	make_edge_state = true
-	set_activated()
-
-func set_state_normal():
-	_state_transition(transition_to_normal)
-	make_edge_state = false
-	set_unactivated()
 
 func set_box_size(box_size):
 	edgecontrol.rect_min_size = box_size
@@ -133,30 +108,50 @@ func _ready():
 	arrows.resize(4)
 	for i in range(4):
 		var action = EdgeAction_factory.instance()
-		 # needs scaling
 		action.position = 40 * direction[i] 
 		action.rotation += i*PI/2
 		arrows[i] = action 
 		add_child(action)
-		# collision
-		# arrow.connect("clicked", self, '_on_arrow_clicked', [arrow])
 
 	scale_with(idle_radius)
 
 func scale_with(radius):
 	idle_radius = radius
 	select_radius = idle_radius + select_margin
-	idle_border_width = max(int(radius/4),3)
+	idle_border_width = max(int(radius/3),3)
 	
 	var input_box_size = 2*Vector2(select_radius, select_radius)
 	inputcontrol.rect_min_size = input_box_size
 
+func add_edge(dir, edge):
+	edges[dir] = edge
+	arrows[dir].set_state(State.Disconnect)
+
+func remove_edge(dir):
+	edges[dir] = null
+	arrows[dir].set_state(State.Connect)
+
+func _state_transition(transition):
+	for arrow in arrows:
+		if transition.has(arrow.curr_state):
+			arrow.set_state(transition[arrow.curr_state])
+
+func set_state_incoming():
+	_state_transition(transition_to_incoming)
+	make_edge_state = true
+	set_activated()
+
+func set_state_normal():
+	_state_transition(transition_to_normal)
+	make_edge_state = false
+	set_unactivated()
+
 func _on_hovered_quadrant(quadrant):
 	for i in range(4):
 		if i == quadrant:
-			arrows[i].modulate = Color(1,1,1)
+			arrows[i].highlight_on()
 		else:
-			arrows[i].modulate = Color(144,144,144)
+			arrows[i].highlight_off()
 
 func _on_clicked_quadrant(quadrant):
 	print('clicked ', quadrant)
@@ -192,17 +187,9 @@ func _on_clicked(event):
 			ungrab()
 
 
-func _draw():
-	# border_color = idle_border_color
-	if hovered:
-		draw_circle(Vector2(), idle_radius, colors.hovered_border_color)
-		draw_circle(Vector2(), idle_radius-idle_border_width, base_color)
-	else:
-		draw_circle(Vector2(), idle_radius, idle_border_color)
-		draw_circle(Vector2(), idle_radius-idle_border_width, base_color)
-	if selected:
-		draw_circle_custom(idle_radius + 2, colors.white, 2)
-
+func get_connected_node(dir):
+	var edge = edges[dir]
+	return edge.from if edge.from != self else edge.to
 
 func attach(_tile):
 	tile = _tile
@@ -272,8 +259,17 @@ func _on_mouse_exited():
 func _on_mouse_exit_box():
 	if !make_edge_state:
 		set_unactivated()
-	# emit_signal('node_unhovered', self)
 
+
+func _draw():
+	if hovered:
+		draw_circle(Vector2(), idle_radius, colors.hovered_border_color)
+		draw_circle(Vector2(), idle_radius-idle_border_width, base_color)
+	else:
+		draw_circle(Vector2(), idle_radius, idle_border_color)
+		draw_circle(Vector2(), idle_radius-idle_border_width, base_color)
+	if selected:
+		draw_circle_custom(idle_radius + 2, colors.white, 2)
 
 ### 
 

@@ -1,5 +1,7 @@
 extends Control
 
+export var highlight_quadrant = false
+
 var quad = [-3*PI/4, -PI/4, PI/4, 3*PI/4]
 
 signal clicked_quadrant
@@ -71,11 +73,11 @@ func _draw():
 			draw_line(cpt + 0.3*sized_diagonal, cpt + 0.8*sized_diagonal, colors.black, 1)
 
 func _draw_quadrant(quadrant):
-	print('polygon colors', color_quadrant)
-	var cpt = rect_min_size/2
-	var corners = get_rect_corners(Rect2(Vector2(0,0), rect_size))
-	var poly = [cpt, corners[wrapi(quadrant-1,0,4)], corners[quadrant]]
-	draw_polygon(poly, color_quadrant)
+	if highlight_quadrant:
+		var cpt = rect_min_size/2
+		var corners = get_rect_corners(Rect2(Vector2(0,0), rect_size))
+		var poly = [cpt, corners[wrapi(quadrant-1,0,4)], corners[quadrant]]
+		draw_polygon(poly, color_quadrant)
 
 static func get_rect_corners(rect):
 	return [rect.end, Vector2(rect.position.x, rect.end.y), rect.position, Vector2(rect.end.x, rect.position.y)]

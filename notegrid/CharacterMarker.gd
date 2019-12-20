@@ -2,12 +2,15 @@ extends Sprite
 
 class_name CharacterMarker
 
-# "draw marker"
+# should be called "draw marker"
 
 # TODO move out of this gridlayer
 
 onready var notegrid = get_parent()
 
+var fade_offset = Vector2(0,-20)
+var color_fade = Color(1,1,1,0.4)
+var color_normal = Color(1,1,1,1)
 
 var idx: Vector2
 
@@ -25,13 +28,12 @@ func set_idx(idx):
 	update()
 
 
-# func _draw():
-# 	var pos = (square.position + square.end)/2
-# 	var radius = (sizefactor * square.size.x)/2
-# 	draw_circle(pos, radius, white)
-# 	draw_circle(pos, radius-width, notegrid.background_color)
+func _process(delta):
+	if Input.is_key_pressed(KEY_SHIFT):
+		self_modulate = color_fade
+		offset = fade_offset
+	else:
+		self_modulate = color_normal
+		offset = Vector2(0,0)
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass

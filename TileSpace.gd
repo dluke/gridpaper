@@ -630,11 +630,20 @@ func _unhandled_input(event):
 			_update_drag(to_local(event.position))
 
 	for action in ['ui_right', 'ui_left', 'ui_down', 'ui_up']:
-		if event.is_action(action) and event.pressed:
-			# 
+		var last_tile = notegrid.get(notegrid.last_marker_idx)
+		if last_tile == null:
+			pass
+		elif Input.is_key_pressed(KEY_SHIFT):
+			pass
+		elif !last_tile.tile_has_node():
+			pass
+		elif event.is_action(action) and event.pressed:
 			var dir = Str_map[action.trim_prefix('ui_')]
-			var step = Dir_basis[dir]
-			var last_tile = notegrid.get(notegrid.last_marker_idx)
+			# can we follow an edge?
+			if last_tile.node.edges[dir] != null:
+				var c_node = last_tile.node.get_connected_node(dir)
+				notegrid.move_marker(c_node.ixy)
+			# 
 
 			# is there a tileobject here?
 			var t_idx = notegrid.marker_idx 
@@ -653,7 +662,8 @@ func _unhandled_input(event):
 				# Already a tileojbect here
 				if oldtile.node != null:
 					# update connections
-					add_graph_edge(last_tile.node, dir, oldtile.node, Dir_opp[dir])
+					if oldtile.node.edges[Dir_opp[dir]] == null:
+						add_graph_edge(last_tile.node, dir, oldtile.node, Dir_opp[dir])
 					change_open_tile(last_tile, oldtile)
 				else:
 					var newnode = add_node_to_tile(oldtile)

@@ -159,7 +159,7 @@ class Edge:
 	var edge_width: float
 	
 	# for debugging
-	var draw_points = true
+	var draw_points = false
 
 
 	func _init(from_, d_from, to_, d_to):
