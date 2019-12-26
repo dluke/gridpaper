@@ -36,11 +36,11 @@
      inkscape:current-layer="layer1"
      showgrid="true"
      units="px"
-     inkscape:window-width="2560"
-     inkscape:window-height="1385"
-     inkscape:window-x="2560"
-     inkscape:window-y="27"
-     inkscape:window-maximized="1"
+     inkscape:window-width="963"
+     inkscape:window-height="747"
+     inkscape:window-x="2919"
+     inkscape:window-y="516"
+     inkscape:window-maximized="0"
      fit-margin-top="0"
      fit-margin-left="0.4"
      fit-margin-right="0"
@@ -77,7 +77,9 @@
        d="M 10.365232,288.51396 H 6.1016918 v 3.72064 H 3.0342619"
        id="path1660-5"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cccc" />
+       sodipodi:nodetypes="cccc"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
     <path
        style="fill:#909090;fill-opacity:1;stroke:#909090;stroke-width:0.75558126;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 10.666689,291.28206 4.833834,-2.75522 -4.833834,-2.7553 v 2.7553 z"

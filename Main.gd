@@ -1,7 +1,8 @@
 extends Node2D
 
 
-onready var notegrid = $TileSpace.notegrid
+onready var tilespace = find_node('TileSpace')
+onready var notegrid = tilespace.notegrid
 onready var note = find_node("SimpleNote")
 onready var inventory = find_node("Inventory")
 onready var sidepanel = find_node("SidePanel")
@@ -47,8 +48,8 @@ func _unhandled_input(event):
 			$Inventory.grab_focus()
 		get_tree().set_input_as_handled()
 
-	if event.is_action("toggle_sidepanel") and event.pressed:
-		sidepanel.visible = !sidepanel.visible
+	if event.is_action("toggle_note") and event.pressed:
+		note.visible = !note.visible
 		get_tree().set_input_as_handled()
 
 	

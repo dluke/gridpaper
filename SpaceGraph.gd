@@ -29,7 +29,8 @@ var Dir_basis = [e_x, e_y, -e_x, -e_y]
 
 var nodes: Array = []
 var edges: Array = []
-
+# dictionary of arrays of references to nodes
+var levels: Dictionary = {}
 
 # by selected node is the last to be added 
 var head_node 
@@ -37,8 +38,14 @@ var head_node
 # variables for default spacing when adding new nodes outside of grid
 var default_grid_spacing = 100
 
+func new_level(n):
+	levels[n] = []
+
+func get_level(n):
+	return levels[n]
+
 func _ready():
-	pass
+	new_level(0)
 
 func add_edge(node_i, d_from, node_j, d_to):
 	var edge = Edge.new(node_i, d_from, node_j, d_to)
@@ -56,6 +63,22 @@ func create_node():
 	newnode.connect('node_grabbed', self, '_on_node_grabbed')
 	return newnode
 
+func add_node(node):
+	node.idx = nodes.size()
+	nodes.append(node)
+	levels[node.z_level].append(node)
+	add_child(node)
+	head_node = node
+	return node.idx
+	
+func delete_node(node):
+	# O(n) operation since we update indices
+	nodes.remove(node.idx)
+	for i in range(node.idx, nodes.size()):
+		nodes[i].idx -= 1
+	levels[node.z_level].remove(node)
+	remove_child(node)		
+	node.queue_free()
 
 func _on_node_grabbed(node):
 	node.position = to_local(get_viewport().get_mouse_position())
@@ -90,12 +113,6 @@ func _on_node_make_edge(node, quadrant):
 		make_edge_state = false
 		deactivate_incoming(make_edge_from)
 
-func add_node(node):
-	node.idx = nodes.size()
-	nodes.append(node)
-	add_child(node)
-	head_node = node
-	return node.idx
 
 func delete_edge(edge):
 	edge.from.remove_edge(edge.direction_from)
@@ -106,13 +123,6 @@ func delete_edge(edge):
 	remove_child(edge)
 	edge.queue_free()
 
-func delete_node(node):
-	# O(n) operation since we update indices
-	nodes.remove(node.idx)
-	for i in range(node.idx, nodes.size()):
-		nodes[i].idx -= 1
-	remove_child(node)		
-	node.queue_free()
 
 func cardinal_create_from_node(origin, dir=Dir.RIGHT, spacing=default_grid_spacing):
 	var new_node = create_node() 

@@ -121,3 +121,11 @@ func _ready():
 	start_node = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp))
 	newnode = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp + Vector2(1,1)))
 	tilespace.add_graph_edge(start_node, Dir.UP, newnode, Dir.RIGHT)
+
+	# xvi
+	# unfixed
+	print('test xvi')
+	disp = Vector2(0,-4)
+	start_node = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp))
+	newnode = tilespace.add_node_to_tile(notegrid.new_tile(origin_idx + disp + Vector2(-3,-1)))
+	tilespace.add_graph_edge(start_node, Dir.UP, newnode, Dir.UP)

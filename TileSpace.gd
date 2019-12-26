@@ -1,6 +1,11 @@
 extends Node2D
 
 signal new_open_tile
+signal node_moved
+signal node_added
+
+var z_marker_factory = preload('res://GUI/z_marker.tscn')
+#
 
 var background_color = Color('#4d4d4d')
 
@@ -26,10 +31,10 @@ onready var notegrid = find_node('NoteGrid')
 var open_tile # reference to the node whose description we are displaying
 
 var gsize
+var square_size
 var glyph_height
 var t_subgrid_xy
 var t_subgrid_idx
-
 
 # node connection algorithm
 
@@ -52,6 +57,10 @@ var _subgrid_edge = {}
 #
 var selected_nodes = []
 
+# levels. Dictionary mapping {(int) z_level : (ymin, ymax)}
+var zlevel_ylimits: Dictionary
+var z_markers: Dictionary
+
 # grid idx to subgrid xy
 func gidx_to_sub_xy(ixy, dir):
 	return gsize*ixy + gsize/2 * Dir_basis[dir]
@@ -59,10 +68,18 @@ func gidx_to_sub_xy(ixy, dir):
 func to_sub_xy(pos, dir):
 	return pos + gsize/2 * Dir_basis[dir]
 
+func get_ylimits(n) -> Vector2:
+	return zlevel_ylimits[n]
+
+func set_ylimits(n, lims):
+	zlevel_ylimits[n] = lims
+
+
 # Called when the node enters the scene tree for the first time.
 
 func _ready_gridsize():
 	gsize = float(notegrid.size)
+	square_size = notegrid.square_size
 	glyph_height = gsize/4
 
 	# edge drawing parameters
@@ -94,6 +111,11 @@ func _ready():
 	newtile.description = 'My point of origin.'
 	var origin_node = add_node_to_tile(newtile)
 
+	# 
+	var z_marker_0 = get_node('z_marker_0')
+	z_marker_0.set_y(gsize/2)
+	z_markers[0] = z_marker_0
+	
 	#
 	open_tile = newtile
 
@@ -432,6 +454,12 @@ func _check_direct_path(from, to):
 
 func add_graph_node(node):
 	graph.add_node(node)
+	if zlevel_ylimits.has(node.z_level):
+		_update_ylimits(node)
+	else: # first node in this level
+		var node_pos = notegrid.get_pos(node.ixy)
+		zlevel_ylimits[node.z_level] = Vector2(node_pos.y, node_pos.y)
+	#
 	for arrow in node.arrows:
 		arrow.position = gsize/4 * arrow.position.normalized()
 		var glyph_scale = glyph_height/arrow.get_height()
@@ -445,6 +473,13 @@ func add_graph_node(node):
 	node.connect('node_unhovered', self, '_on_node_unhovered') 
 	node.connect('node_moved_relative', self, '_on_node_moved_relative') 
 
+	emit_signal('node_added', node)
+
+func add_z_marker(level):
+	var z_marker = z_marker_factory.instance(level)
+	z_markers[level] = z_marker
+	add_child(z_marker)
+
 func add_graph_edge(from, d_from, to, d_to):
 	var edge = graph.add_edge(from, d_from, to, d_to)
 	edge.p_line = compute_polyline(edge, self)
@@ -456,7 +491,26 @@ func delete_node(node):
 	pass
 
 func move_node(node, ixy):
-	pass
+	var prev_tile = notegrid.get(node.ixy)
+	node.ixy = ixy 
+	if node == graph.head_node:
+		# update marker position
+		notegrid.move_marker(ixy)
+		change_open_tile(prev_tile, notegrid.get(ixy))
+	_update_ylimits(node)
+	emit_signal('node_moved', node)
+
+func _update_ylimits(node):
+	var lims = get_ylimits(node.z_level)
+	print('p lims ', lims)
+	var node_pos = notegrid.get_pos(node.ixy)
+	lims[0] = min(node_pos.y, lims[0])
+	lims[1] = max(node_pos.y, lims[1])
+	set_ylimits(node.z_level, lims)
+	print('node pos ', node_pos)
+	print('lims ', lims)
+	for marker in z_markers.values():
+		marker.update_marker()
 
 
 func change_open_tile(oldtile, tile):
@@ -476,6 +530,7 @@ func _on_node_hovered(node):
 			node.set_hovered()
 
 func _on_node_moved_relative(node, relative):
+	# move all other selected nodes
 	if node.selected:
 		for nd in selected_nodes:
 			if nd == node:
@@ -540,19 +595,12 @@ func _release_node(node):
 		node.attach(notegrid.get(node.ixy))
 		snap_to(node, node.ixy)
 
-func snap_to(node, idx):
-	var prev_tile = notegrid.get(node.ixy)
-	var grect = notegrid.get_rect(idx)
+func snap_to(node, ixy):
+	var grect = notegrid.get_rect(ixy)
 	node.position = grect.position + grect.size/2
-	if node.ixy == idx:
+	if node.ixy == ixy:
 		return # snap back
-	#
-	node.ixy = idx
-	if node == graph.head_node:
-		# update marker position
-		notegrid.move_marker(idx)
-		change_open_tile(prev_tile, notegrid.get(idx))
-	update()
+	move_node(node, ixy)
 
 func update_edges(nodes):	
 	for node in nodes:
@@ -598,6 +646,24 @@ func select_tile(tile_idx):
 func _draw():
 	if drag_select:
 		draw_rect(drag_rect, colors.white, false)
+	# _draw_zlevels()
+
+func _draw_zlevels():
+	var vrect = get_viewport_rect()
+	var xleft = to_local(vrect.position).x
+	var xright = to_local(vrect.end).x
+	for n in zlevel_ylimits:
+		var ylims = zlevel_ylimits[n]
+		draw_line(Vector2(xleft, ylims[0]), Vector2(xright, ylims[0]), colors.white, 1)
+		draw_line(Vector2(xleft, ylims[1]+gsize), Vector2(xright, ylims[1]+gsize), colors.white, 1)
+
+func translate(relative):
+	position += relative
+	notegrid.position += relative
+	notegrid.update()
+	update()
+	for marker in z_markers.values():
+		marker.fix_label_x_position()
 
 func _unhandled_input(event):
 
@@ -620,14 +686,12 @@ func _unhandled_input(event):
 
 	if event is InputEventMouseMotion: 
 		if grabbed == true:
-			position += event.relative
-			notegrid.position += event.relative
-			notegrid.update()
+			translate(event.relative)
 			moved += event.relative
-			update()
 			get_tree().set_input_as_handled()
 		if drag_select == true:
 			_update_drag(to_local(event.position))
+
 
 	for action in ['ui_right', 'ui_left', 'ui_down', 'ui_up']:
 		var last_tile = notegrid.get(notegrid.last_marker_idx)

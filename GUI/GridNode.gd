@@ -74,7 +74,8 @@ var edges: Array
 var inputcontrol: Control
 var edgecontrol: Control
 
-func _init():
+func _init(z_level_=0):
+	z_level = z_level_
 
 	# new instance, new array	
 	edges = []

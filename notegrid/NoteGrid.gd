@@ -125,8 +125,8 @@ func check_idx(idx):
 	# check that the index is in the graph
 	return idx.x >= 0 && idx.y >= 0 && idx.x < gridsize.x && idx.y < gridsize.y
 
-func get_pos(idx) -> Vector2:
-	return idx*square_size - boardsize/2
+func get_pos(ixy) -> Vector2:
+	return ixy*square_size - boardsize/2
 
 func get_idx(pos) -> Vector2:
 	return ((pos+boardsize/2)/square_size).floor()
@@ -147,13 +147,7 @@ func _draw():
 	# we might like to draw tile by tile 
 	var y_edge = (extents.y + 0.5)*size
 	var x_edge = (extents.x + 0.5)*size
-	# for i in range(gridsize.x+1):
-	# 	var ix = (i-extents.x-0.5)*size
-	# 	draw_line(Vector2(ix, -y_edge), Vector2(ix, y_edge), gridcolor, 1)
-		
-	# for i in range(gridsize.y+1):
-	# 	var iy = (i-extents.y-0.5)*size
-	# 	draw_line(Vector2(-x_edge, iy), Vector2(x_edge, iy), gridcolor, 1)
+	
 	var vpr = get_viewport_rect()
 	var lpos = to_local(vpr.position)
 	var xpos = to_local(vpr.end)
